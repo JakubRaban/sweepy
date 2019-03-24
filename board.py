@@ -10,7 +10,7 @@ class Board:
         self.cells = dict()
         for i in range(rows):
             for j in range(columns):
-                self.cells.update({(i, j): Cell(i, j)})
+                self.cells[(i, j)] = Cell(i, j)
 
     def spawn_mines(self, filling_ratio=0.16):
         if not self.mines_spawned:
@@ -35,4 +35,3 @@ class Cell:
                     adjacent_cells.append((self.row + i, self.column + j))
         adjacent_cells.remove((self.row, self.column))
         return adjacent_cells
-
