@@ -24,13 +24,19 @@ class Board:
             if cell.has_mine:
                 adjacent_cells_coordinates = cell.get_adjacent_cells_coordinates(self.rows, self.columns)
                 for adj in adjacent_cells_coordinates:
-                    self.cells[adj].mines_around += 1
+                    self.get_cell_with_tuple(adj).mines_around += 1
 
-    def uncover_cell_at(self, row, column):
-        current_cell = self.cells[(row, column)]
-        current_cell.is_uncovered = True
-        if current_cell.has_mine:
-            pass  # GAME OVER
+    def get_cell_by_indexes(self, row, column):
+        return self.cells[(row, column)]
+
+    def get_cell_with_tuple(self, coordinates):
+        return self.cells[coordinates]
+
+    # def uncover_cell_at(self, row, column):               # TODO przepisać gdy będą zaimplementowani gracze
+    #    current_cell = self.get_cell_at(row, column)
+    #    current_cell.is_uncovered = True
+    #    if current_cell.has_mine:
+    #        pass  # GAME OVER (dla jednego gracza)
 
 
 class Cell:
