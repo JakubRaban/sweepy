@@ -37,6 +37,7 @@ class Board:
     #    current_cell.is_uncovered = True
     #    if current_cell.has_mine:
     #        pass  # GAME OVER (dla jednego gracza)
+    #komentarz
 
 
 class Cell:
