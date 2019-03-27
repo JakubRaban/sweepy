@@ -46,6 +46,7 @@ class Cell:
         self.has_mine = False
         self.mines_around = 0
         self.is_uncovered = False
+        self.flagging_player = None
 
     def get_adjacent_cells_coordinates(self, board_size_rows, board_size_columns):  # Czy można to zamienić na generator?
         adjacent_cells = []
