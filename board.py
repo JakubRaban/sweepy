@@ -11,6 +11,8 @@ class Board:
         for i in range(rows):
             for j in range(columns):
                 self.cells[(i, j)] = Cell(i, j)
+        self.spawn_mines()
+        self.assign_number_of_mines_around_to_cells()
 
     def spawn_mines(self, filling_ratio=0.16):
         if not self.mines_spawned:
@@ -26,17 +28,23 @@ class Board:
                 for adj in adjacent_cells_coordinates:
                     self.get_cell_with_tuple(adj).mines_around += 1
 
+    def uncover_cell(self, row, column, player):
+        current_cell = self.get_cell_by_indexes(row, column)
+        uncover_status = current_cell.uncover(player)
+        if uncover_status is ActionOutcome.UNCOVER_ZERO:
+            adjacent_cells = current_cell.get_adjacent_cells_coordinates(self.rows, self.columns)
+            for cell in adjacent_cells:
+                self.uncover_cell(cell[0], cell[1], player)
+        return ActionOutcome.UNCOVER_CORRECT
+
+    def toggle_flag(self, row, column, player):
+        return self.get_cell_by_indexes(row, column).toggle_flag(player)
+
     def get_cell_by_indexes(self, row, column):
         return self.cells[(row, column)]
 
     def get_cell_with_tuple(self, coordinates):
         return self.cells[coordinates]
-
-    # def uncover_cell_at(self, row, column):               # TODO przepisać gdy będą zaimplementowani gracze
-    #    current_cell = self.get_cell_at(row, column)
-    #    current_cell.is_uncovered = True
-    #    if current_cell.has_mine:
-    #        pass  # GAME OVER (dla jednego gracza)
 
 
 class Cell:
