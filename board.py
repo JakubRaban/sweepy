@@ -1,4 +1,5 @@
 
+from enum import Enum
 from random import shuffle
 
 
@@ -64,3 +65,36 @@ class Cell:
                     adjacent_cells.append((self.row + i, self.column + j))
         adjacent_cells.remove((self.row, self.column))
         return adjacent_cells
+
+    def uncover(self, player):
+        if self.is_uncovered or self.flagging_player is not None:
+            return ActionOutcome.NO_OUTCOME
+        self.flagging_player = player
+        self.is_uncovered = True
+        if not self.has_mine:
+            return ActionOutcome.EXPLODED
+        else:
+            if self.mines_around is 0:
+                return ActionOutcome.UNCOVER_ZERO
+            else:
+                return ActionOutcome.UNCOVER_CORRECT
+
+    def toggle_flag(self, player):
+        if self.flagging_player is not None:
+            self.flagging_player = None
+            return ActionOutcome.NO_OUTCOME
+        else:
+            self.flagging_player = player
+            if self.has_mine:
+                return ActionOutcome.FLAG_CORRECT
+            else:
+                return ActionOutcome.FLAG_INCORRECT
+
+
+class ActionOutcome(Enum):
+    NO_OUTCOME = 0
+    FLAG_CORRECT = 1
+    FLAG_INCORRECT = 2
+    UNCOVER_CORRECT = 3
+    UNCOVER_ZERO = 4
+    EXPLODED = 5
