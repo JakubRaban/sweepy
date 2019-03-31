@@ -47,6 +47,17 @@ class Board:
     def get_cell_with_tuple(self, coordinates):
         return self.cells[coordinates]
 
+    def is_cell_present(self, row, column):
+        return row in range(self.rows) and column in range(self.columns)
+
+    def get_cell_towards(self, row, column, move_direction):
+        new_coordinates = [sum(x) for x in zip((row, column), move_direction.value)]
+        if not new_coordinates[0] in range(self.rows):
+            new_coordinates[0] = abs(abs(new_coordinates[0]) - self.rows)
+        if not new_coordinates[1] in range(self.columns):
+            new_coordinates[1] = abs(abs(new_coordinates[1]) - self.columns)
+        return new_coordinates
+
 
 class Cell:
     def __init__(self, row, column):
@@ -98,3 +109,10 @@ class ActionOutcome(Enum):
     UNCOVER_CORRECT = 3
     UNCOVER_ZERO = 4
     EXPLODED = 5
+
+
+class MoveDirection(Enum):
+    UP = (0, -1)
+    DOWN = (0, 1)
+    LEFT = (-1, 0)
+    RIGHT = (0, 1)
