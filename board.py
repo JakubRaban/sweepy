@@ -18,9 +18,15 @@ class Board:
     def spawn_mines(self, filling_ratio=0.16):
         if not self.mines_spawned:
             all_coordinates = list(self.cells.keys())
+            self.remove_corners_from_coordinates(all_coordinates)
             shuffle(all_coordinates)
             for i in range(int(self.rows * self.columns * filling_ratio)):
                 self.cells[all_coordinates[i]].has_mine = True
+
+    def remove_corners_from_coordinates(self, all_coordinates):
+        for i in [0, 1, self.rows - 1, self.rows - 2]:
+            for j in [0, 1, self.columns - 1, self.columns - 2]:
+                all_coordinates.remove((i, j))
 
     def assign_number_of_mines_around_to_cells(self):
         for coordinate, cell in self.cells.items():
@@ -32,11 +38,12 @@ class Board:
     def uncover_cell(self, row, column, player):
         current_cell = self.get_cell_by_indexes(row, column)
         uncover_status = current_cell.uncover(player)
-        if uncover_status is ActionOutcome.UNCOVER_ZERO:
+        if uncover_status == ActionOutcome.UNCOVER_ZERO:
             adjacent_cells = current_cell.get_adjacent_cells_coordinates(self.rows, self.columns)
             for cell in adjacent_cells:
                 self.uncover_cell(cell[0], cell[1], player)
-        return ActionOutcome.UNCOVER_CORRECT
+            return ActionOutcome.UNCOVER_CORRECT
+        return uncover_status
 
     def toggle_flag(self, row, column, player):
         return self.get_cell_by_indexes(row, column).toggle_flag(player)
@@ -85,7 +92,7 @@ class Cell:
         if not self.has_mine:
             return ActionOutcome.EXPLODED
         else:
-            if self.mines_around is 0:
+            if self.mines_around == 0:
                 return ActionOutcome.UNCOVER_ZERO
             else:
                 return ActionOutcome.UNCOVER_CORRECT
