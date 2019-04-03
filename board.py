@@ -4,7 +4,7 @@ from random import shuffle
 
 
 class Board:
-    def __init__(self, rows, columns):
+    def __init__(self, rows, columns, filling_ratio=0.16):
         self.rows = rows
         self.columns = columns
         self.mines_spawned = False
@@ -12,8 +12,10 @@ class Board:
         for i in range(rows):
             for j in range(columns):
                 self.cells[(i, j)] = Cell(i, j)
-        self.spawn_mines()
-        self.assign_number_of_mines_around_to_cells()
+        self.spawn_mines(filling_ratio)
+        board_correct = self.assign_number_of_mines_around_to_cells()
+        if not board_correct:
+            self.__init__(rows, columns, filling_ratio)
 
     def spawn_mines(self, filling_ratio=0.16):
         if not self.mines_spawned:
@@ -33,7 +35,11 @@ class Board:
             if cell.has_mine:
                 adjacent_cells_coordinates = cell.get_adjacent_cells_coordinates(self.rows, self.columns)
                 for adj in adjacent_cells_coordinates:
-                    self.get_cell_with_tuple(adj).mines_around += 1
+                    filled_cell = self.get_cell_with_tuple(adj)
+                    filled_cell.mines_around += 1
+                    if filled_cell.mines_around == 8 and filled_cell.has_mine:
+                        return False
+        return True
 
     def uncover_cell(self, row, column, player):
         current_cell = self.get_cell_by_indexes(row, column)
