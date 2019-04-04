@@ -13,4 +13,4 @@ for k in range(b.rows):
             print(' ', end=' ')
         elif cell.mines_around > 0:
             print(cell.mines_around, end=' ')
-    print()
+print()

@@ -1,4 +1,4 @@
-
+from enum import Enum
 from random import shuffle
 
 
@@ -26,11 +26,29 @@ class Board:
                 for adj in adjacent_cells_coordinates:
                     self.get_cell_with_tuple(adj).mines_around += 1
 
+    def uncover_cell(self, row, column, player):
+        current_cell = self.get_cell_by_indexes(row, column)
+        uncover_status = current_cell.uncover(player)
+        if uncover_status == ActionOutcome.UNCOVER_ZERO:
+            adjacent_cells = current_cell.get_adjacent_cells_coordinates(self.rows, self.columns)
+            for cell in adjacent_cells:
+                self.uncover_cell(cell[0], cell[1], player)
+            return ActionOutcome.UNCOVER_CORRECT
+        return uncover_status
+
     def get_cell_by_indexes(self, row, column):
         return self.cells[(row, column)]
 
     def get_cell_with_tuple(self, coordinates):
         return self.cells[coordinates]
+
+    def get_cell_towards(self, row, column, move_direction):
+        new_coordinates = [sum(x) for x in zip((row, column), move_direction.value)]
+        if not new_coordinates[0] in range(self.rows):
+            new_coordinates[0] = abs(abs(new_coordinates[0]) - self.rows)
+        if not new_coordinates[1] in range(self.columns):
+            new_coordinates[1] = abs(abs(new_coordinates[1]) - self.columns)
+        return new_coordinates
 
     # def uncover_cell_at(self, row, column):               # TODO przepisać gdy będą zaimplementowani gracze
     #    current_cell = self.get_cell_at(row, column)
@@ -57,3 +75,41 @@ class Cell:
                     adjacent_cells.append((self.row + i, self.column + j))
         adjacent_cells.remove((self.row, self.column))
         return adjacent_cells
+
+    def uncover(self, player):
+        if self.is_uncovered or self.flagging_player is not None:
+            return ActionOutcome.NO_OUTCOME
+        self.flagging_player = player
+        self.is_uncovered = True
+        if not self.has_mine:
+            return ActionOutcome.EXPLODED
+        else:
+            if self.mines_around == 0:
+                return ActionOutcome.UNCOVER_ZERO
+            else:
+                return ActionOutcome.UNCOVER_CORRECT
+
+    def toggle_flag(self, player):
+        if self.flagging_player is not None:
+            self.flagging_player = None
+            return ActionOutcome.NO_OUTCOME
+        else:
+            self.flagging_player = player
+            if self.has_mine:
+                return ActionOutcome.FLAG_CORRECT
+            else:
+                return ActionOutcome.FLAG_INCORRECT
+
+class MoveDirection(Enum):
+    UP = (0, -1)
+    DOWN = (0, 1)
+    LEFT = (-1, 0)
+    RIGHT = (0, 1)
+
+class ActionOutcome(Enum):
+    NO_OUTCOME = 0
+    FLAG_CORRECT = 1
+    FLAG_INCORRECT = 2
+    UNCOVER_CORRECT = 3
+    UNCOVER_ZERO = 4
+    EXPLODED = 5
