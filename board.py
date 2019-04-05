@@ -63,8 +63,8 @@ class Board:
     def is_cell_present(self, row, column):
         return row in range(self.rows) and column in range(self.columns)
 
-    def can_move_to(self,row,column):
-        cell = self.get_cell_by_indexes(row,column)
+    def can_move_to(self, row, column):
+        cell = self.get_cell_by_indexes(row, column)
         return cell.flagging_player is None or not cell.has_mine
 
     def get_cell_towards(self, row, column, move_direction):
