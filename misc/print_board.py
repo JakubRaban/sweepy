@@ -1,9 +1,7 @@
 
 from board import Board
 
-b = Board(10, 10)
-b.spawn_mines()
-b.assign_number_of_mines_around_to_cells()
+b = Board(16, 16, 0.22)
 for k in range(b.rows):
     for l in range(b.columns):
         cell = b.get_cell_by_indexes(k, l)
