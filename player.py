@@ -2,10 +2,15 @@ from board import Cell, ActionOutcome
 
 
 class Player:
-    def __init__(self,cell):
-        self.cell = cell
+    def __init__(self,row,column):
+        self.row = row
+        self.column = column
         self.scores = 0
         self.is_dead = False
+
+    def set_new_position(self,coords):
+        self.row = coords[0]
+        self.column = coords[1]
 
     def move_toward(self, board, move_direction):
         coords = board.get_cell_towards(self=self.cell, move_direction=move_direction)
