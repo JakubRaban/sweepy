@@ -33,7 +33,7 @@ class Board:
     def assign_number_of_mines_around_to_cells(self):
         for coordinate, cell in self.cells.items():
             if cell.has_mine:
-                adjacent_cells_coordinates = cell.get_adjacent_cells_coordinates(self.rows, self.columns)
+                adjacent_cells_coordinates = self.get_adjacent_cells_coordinates(coordinate[0], coordinate[1])
                 for adj in adjacent_cells_coordinates:
                     filled_cell = self.get_cell_with_tuple(adj)
                     filled_cell.mines_around += 1
@@ -45,7 +45,7 @@ class Board:
         current_cell = self.get_cell_by_indexes(row, column)
         uncover_status = current_cell.uncover(player)
         if uncover_status == ActionOutcome.UNCOVER_ZERO:
-            adjacent_cells = current_cell.get_adjacent_cells_coordinates(self.rows, self.columns)
+            adjacent_cells = self.get_adjacent_cells_coordinates(row, column)
             for cell in adjacent_cells:
                 self.uncover_cell(cell[0], cell[1], player)
             return ActionOutcome.UNCOVER_CORRECT
@@ -71,6 +71,15 @@ class Board:
             new_coordinates[1] = abs(abs(new_coordinates[1]) - self.columns)
         return new_coordinates
 
+    def get_adjacent_cells_coordinates(self, row, column):  # Czy można to zamienić na generator?
+        adjacent_cells = []
+        for i in [-1, 0, 1]:
+            for j in [-1, 0, 1]:
+                if self.is_cell_present(row + i, column + j):
+                    adjacent_cells.append((row + i, column + j))
+        adjacent_cells.remove((row, column))
+        return adjacent_cells
+
 
 class Cell:
     def __init__(self, row, column):
@@ -80,15 +89,6 @@ class Cell:
         self.mines_around = 0
         self.is_uncovered = False
         self.flagging_player = None
-
-    def get_adjacent_cells_coordinates(self, board_size_rows, board_size_columns):  # Czy można to zamienić na generator?
-        adjacent_cells = []
-        for i in [-1, 0, 1]:
-            for j in [-1, 0, 1]:
-                if self.row + i in range(board_size_rows) and self.column + j in range(board_size_columns):
-                    adjacent_cells.append((self.row + i, self.column + j))
-        adjacent_cells.remove((self.row, self.column))
-        return adjacent_cells
 
     def uncover(self, player):
         if self.is_uncovered or self.flagging_player is not None:
