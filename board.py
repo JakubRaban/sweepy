@@ -99,7 +99,7 @@ class Cell:
             return ActionOutcome.NO_OUTCOME
         self.flagging_player = player
         self.is_uncovered = True
-        if not self.has_mine:
+        if self.has_mine:
             return ActionOutcome.EXPLODED
         else:
             if self.mines_around == 0:
