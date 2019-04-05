@@ -7,7 +7,6 @@ class Board:
     def __init__(self, rows, columns, filling_ratio=0.16):
         self.rows = rows
         self.columns = columns
-        self.mines_spawned = False
         self.cells = dict()
         for i in range(rows):
             for j in range(columns):
@@ -18,12 +17,11 @@ class Board:
             self.__init__(rows, columns, filling_ratio)
 
     def spawn_mines(self, filling_ratio=0.16):
-        if not self.mines_spawned:
-            all_coordinates = list(self.cells.keys())
-            self.remove_corners_from_coordinates(all_coordinates)
-            shuffle(all_coordinates)
-            for i in range(int(self.rows * self.columns * filling_ratio)):
-                self.cells[all_coordinates[i]].has_mine = True
+        all_coordinates = list(self.cells.keys())
+        self.remove_corners_from_coordinates(all_coordinates)
+        shuffle(all_coordinates)
+        for i in range(int(self.rows * self.columns * filling_ratio)):
+            self.cells[all_coordinates[i]].has_mine = True
 
     def remove_corners_from_coordinates(self, all_coordinates):
         for i in [0, 1, self.rows - 1, self.rows - 2]:
@@ -97,7 +95,6 @@ class Cell:
     def uncover(self, player):
         if self.is_uncovered or self.flagging_player is not None:
             return ActionOutcome.NO_OUTCOME
-        self.flagging_player = player
         self.is_uncovered = True
         if self.has_mine:
             return ActionOutcome.EXPLODED
@@ -129,7 +126,7 @@ class ActionOutcome(Enum):
 
 
 class MoveDirection(Enum):
-    UP = (0, -1)
-    DOWN = (0, 1)
-    LEFT = (-1, 0)
+    UP = (-1, 0)
+    DOWN = (1, 0)
+    LEFT = (0, -1)
     RIGHT = (0, 1)
