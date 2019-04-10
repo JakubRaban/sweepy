@@ -4,7 +4,7 @@ from random import shuffle
 
 
 class Board:
-    def __init__(self, rows, columns, filling_ratio=0.16):
+    def __init__(self, rows, columns, filling_ratio=0.18):
         self.rows = rows
         self.columns = columns
         self.cells = dict()
@@ -16,7 +16,7 @@ class Board:
         if not board_correct:
             self.__init__(rows, columns, filling_ratio)
 
-    def spawn_mines(self, filling_ratio=0.16):
+    def spawn_mines(self, filling_ratio=0.18):
         all_coordinates = list(self.cells.keys())
         self.remove_corners_from_coordinates(all_coordinates)
         shuffle(all_coordinates)
