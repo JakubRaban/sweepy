@@ -1,5 +1,4 @@
 from kivy.app import App
-from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
@@ -33,20 +32,19 @@ class SweepyGame(GridLayout):
         self.rows = board_height
         self.spacing = [2,2]
         self.all_tiles = dict()
-        Window.size = 32 * self.cols, 32 * self.rows
-        for i in range(self.cols):
-            for j in range(self.rows):
+        Window.size = 32 * self.cols - 2, 32 * self.rows - 2
+        for i in range(self.rows):
+            for j in range(self.cols):
                 self.all_tiles[(i, j)] = Image(source='images/tile_normal.png', width=30, height=30, size_hint_x=None, size_hint_y=None)
-                self.add_widget(self.all_tiles[(i, j)])
-        self.all_tiles[(3, 6)].source = 'images/tile_flagged_ok.png'
-        self.all_tiles[(3, 6)].reload()
-        self.all_tiles[(3, 7)].source = 'images/tile_two.png'
-        self.all_tiles[(3, 7)].reload()
+                self.add_widget(self.all_tiles.get((i, j)))
+        self.all_tiles[(2, 4)].source = 'images/tile_flagged_ok.png'
+        self.all_tiles[(0, 2)].source = 'images/tile_two.png'
+        self.all_tiles[(5, 7)].source = 'images/tile_zero.png'
 
 
 class SweepyApp(App):
     def build(self):
-        return SweepyGame(10, 10)
+        return SweepyGame(35, 25)
 
 
 if __name__ == '__main__':
