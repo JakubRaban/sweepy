@@ -1,5 +1,6 @@
+
 from board import Board, ActionOutcome
-from player import Player
+from player import Player, PlayerColor
 
 
 class Game:
@@ -9,13 +10,13 @@ class Game:
         for index in range(nb_of_players):
             player = None
             if index == 0:
-                player = Player(rows-1, 0)
+                player = Player(rows-1, 0, PlayerColor.BLUE)
             elif index == 1:
-                player = Player(0, columns-1)
+                player = Player(0, columns-1, PlayerColor.RED)
             elif index == 2:
-                player = Player(0, 0)
+                player = Player(0, 0, PlayerColor.GREEN)
             elif index == 3:
-                player = Player(rows - 1, columns - 1)
+                player = Player(rows - 1, columns - 1, PlayerColor.YELLOW)
             if player is not None:
                 self.players.append(player)
 
@@ -28,7 +29,7 @@ class Game:
     def move_player(self, player_id, move_direction):
         moving_player = self.players[player_id]
         coords = self.board.get_cell_towards(moving_player.row, moving_player.column, move_direction)
-        if self.can_move_to(coords[0], coords[1]):
+        if self.can_move_to(coords[0], coords[1]) and not self.players[player_id].is_dead:
             self.players[player_id].set_new_position(coords)
 
     def uncover_cell(self, player_id):
