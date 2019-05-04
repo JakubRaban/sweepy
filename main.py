@@ -3,9 +3,7 @@ from kivy.core.window import Window
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
-from kivy.uix.widget import Widget
 from game import Game
-from board import MoveDirection
 
 
 class MenuScreen(Screen):
@@ -47,13 +45,6 @@ class SweepyGame(GridLayout):
         self.update_cell(0, board_width - 1)
         self.update_cell(board_height - 1, board_width - 1)
 
-        self._keyboard = Window.request_keyboard(
-            self._keyboard_closed, self, 'text'
-        )
-        if self._keyboard.widget:
-            pass
-        self._keyboard.bind(on_key_down=self._on_keyboard_down)
-
     def update_cell(self, row, column):
         filename = "images/tile"
         our_cell = game.board.get_cell_by_indexes(row, column)
@@ -75,37 +66,10 @@ class SweepyGame(GridLayout):
         filename += ".png"
         self.all_tiles[(row, column)].source = filename
 
-    def _keyboard_closed(self):
-        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
-        self._keyboard = None
-
-    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
-        old_position = game.players[0].get_position()
-        moved = True
-        if keycode[1] == 'left':
-            game.move_player(0, MoveDirection.LEFT)
-        elif keycode[1] == 'right':
-            game.move_player(0, MoveDirection.RIGHT)
-        elif keycode[1] == 'down':
-            game.move_player(0, MoveDirection.DOWN)
-        elif keycode[1] == 'up':
-            game.move_player(0, MoveDirection.UP)
-        elif keycode[1] == 'enter':
-            game.uncover_cell(0)
-            moved = False
-        if moved:
-            #self.update_cell(old_position[0], old_position[1])
-            pass
-        self.update_cell(game.players[0].row, game.players[0].column)
-
-        if keycode[1] == 'escape':
-            keyboard.release()
-        return True
-
 
 class SweepyApp(App):
     def build(self):
-        return SweepyGame(15, 25, 3)
+        return SweepyGame(25, 25, 3)
 
 
 if __name__ == '__main__':
