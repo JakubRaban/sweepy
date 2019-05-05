@@ -1,7 +1,10 @@
 from kivy.app import App
 from kivy.core.window import Window
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
+from kivy.uix.label import Label
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.uix.widget import Widget
 from game import Game
@@ -20,6 +23,24 @@ class SummaryScreen(Screen):
 class GameScreen(Screen):
     pass
 
+
+class WholeWindow(BoxLayout):
+    def __init__(self, board_height, board_width, players, **kwargs):
+        super().__init__(**kwargs)
+        self.orientation = 'vertical'
+        grid = GridLayout()
+        grid.rows = 2
+        grid.cols = 2
+        score_player_red = Label(text='0')
+        grid.add_widget(score_player_red)
+        grid.add_widget(Label(text='0'))
+        grid.add_widget(Label(text='0'))
+        grid.add_widget(Label(text='0'))
+        self.add_widget(grid)
+        self.add_widget(SweepyGame(board_height, board_width, players))
+
+    def update_labels(self):
+        pass
 
 sm = ScreenManager()
 sm.add_widget(MenuScreen(name='menu'))
@@ -90,13 +111,28 @@ class SweepyGame(GridLayout):
             game.move_player(0, MoveDirection.DOWN)
         elif keycode[1] == 'up':
             game.move_player(0, MoveDirection.UP)
-        elif keycode[1] == 'enter':
+        elif keycode[1] == ',':
             game.uncover_cell(0)
             moved = False
-        elif keycode[1] == 'w':
+        elif keycode[1] == '.':
             game.flag_cell(0)
+
+        if keycode[1] == 'a':
+            game.move_player(1, MoveDirection.LEFT)
+        elif keycode[1] == 'd':
+            game.move_player(1, MoveDirection.RIGHT)
+        elif keycode[1] == 's':
+            game.move_player(1, MoveDirection.DOWN)
+        elif keycode[1] == 'w':
+            game.move_player(1, MoveDirection.UP)
+        elif keycode[1] == 'f':
+            game.uncover_cell(1)
+            moved = False
+        elif keycode[1] == 'g':
+            game.flag_cell(1)
+
         if moved:
-            self.update_cell(old_position[0], old_position[1])
+            #self.update_cell(old_position[0], old_position[1])
             pass
         for i in range(self.rows):
             for j in range(self.cols):
@@ -110,7 +146,8 @@ class SweepyGame(GridLayout):
 
 class SweepyApp(App):
     def build(self):
-        return SweepyGame(15, 25, 2)
+        return WholeWindow(15, 15, 2)
+        #return SweepyGame(15, 25, 2)
 
 
 if __name__ == '__main__':
