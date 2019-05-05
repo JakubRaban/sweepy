@@ -62,7 +62,7 @@ class SweepyGame(GridLayout):
                 filename += "_mine"
             else:
                 filename += ("_" + str(our_cell.mines_around))
-        if not our_cell.has_mine:
+        if filename.find("mine") == -1:
             if our_cell.flagging_player is not None:
                 filename += "_flag"
                 if our_cell.has_mine:
@@ -93,10 +93,15 @@ class SweepyGame(GridLayout):
         elif keycode[1] == 'enter':
             game.uncover_cell(0)
             moved = False
+        elif keycode[1] == 'w':
+            game.flag_cell(0)
         if moved:
             self.update_cell(old_position[0], old_position[1])
             pass
-        self.update_cell(game.players[0].row, game.players[0].column)
+        for i in range(self.rows):
+            for j in range(self.cols):
+                self.update_cell(i, j)
+        #self.update_cell(game.players[0].row, game.players[0].column)
 
         if keycode[1] == 'escape':
             keyboard.release()
@@ -105,7 +110,7 @@ class SweepyGame(GridLayout):
 
 class SweepyApp(App):
     def build(self):
-        return SweepyGame(15, 25, 3)
+        return SweepyGame(15, 25, 2)
 
 
 if __name__ == '__main__':
