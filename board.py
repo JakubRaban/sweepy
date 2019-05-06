@@ -4,7 +4,7 @@ from random import shuffle
 
 
 class Board:
-    def __init__(self, rows, columns, filling_ratio=0.22):
+    def __init__(self, rows, columns, filling_ratio=0.17):
         self.rows = rows
         self.columns = columns
         self.cells = dict()

@@ -27,12 +27,12 @@ class WholeWindow(BoxLayout):
     def __init__(self, board_height, board_width, players, **kwargs):
         super().__init__(**kwargs)
         self.orientation = 'vertical'
-        grid = GridLayout()
+        grid = GridLayout(height=50, size_hint_y=None)
         grid.rows = 2
         grid.cols = 2
-        score_player_red = Label(text='0')
-        grid.add_widget(score_player_red)
+        score_player_red = Label(text='0', bold=True, color=[203/256, 30/256, 30/256, 0])
         grid.add_widget(Label(text='0'))
+        grid.add_widget(score_player_red)
         grid.add_widget(Label(text='0'))
         grid.add_widget(Label(text='0'))
         self.add_widget(grid)
@@ -58,10 +58,10 @@ class SweepyGame(GridLayout):
         global game
         game = Game(board_height, board_width, players)
         self.all_tiles = dict()
-        Window.size = 32 * self.cols - 2, 32 * self.rows - 2
+        Window.size = 27 * self.cols - 2, 27 * self.rows - 2 + 50
         for i in range(self.rows):
             for j in range(self.cols):
-                self.all_tiles[(i, j)] = Image(source='images/tile.png', width=30, height=30, size_hint_x=None, size_hint_y=None)
+                self.all_tiles[(i, j)] = Image(source='images/tile.png', width=25, height=25, size_hint_x=None, size_hint_y=None)
                 self.add_widget(self.all_tiles.get((i, j)))
         self.update_cell(0, 0)
         self.update_cell(board_height - 1, 0)
@@ -143,7 +143,7 @@ class SweepyGame(GridLayout):
 
 class SweepyApp(App):
     def build(self):
-        return WholeWindow(15, 15, 2)
+        return WholeWindow(30, 35, 2)
 
 
 if __name__ == '__main__':
