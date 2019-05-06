@@ -69,7 +69,7 @@ class SweepyGame(GridLayout):
 
 class SweepyApp(App):
     def build(self):
-        return SweepyGame(25, 25, 3)
+        return SweepyGame(25, 25, 4)
 
 
 if __name__ == '__main__':
