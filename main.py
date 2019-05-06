@@ -1,14 +1,13 @@
 from kivy.app import App
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
-from kivy.uix.widget import Widget
-from game import Game
+
 from board import MoveDirection
+from game import Game
 
 
 class MenuScreen(Screen):
@@ -41,6 +40,7 @@ class WholeWindow(BoxLayout):
 
     def update_labels(self):
         pass
+
 
 sm = ScreenManager()
 sm.add_widget(MenuScreen(name='menu'))
@@ -101,7 +101,6 @@ class SweepyGame(GridLayout):
         self._keyboard = None
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
-        old_position = game.players[0].get_position()
         moved = True
         if keycode[1] == 'left':
             game.move_player(0, MoveDirection.LEFT)
@@ -132,12 +131,10 @@ class SweepyGame(GridLayout):
             game.flag_cell(1)
 
         if moved:
-            #self.update_cell(old_position[0], old_position[1])
             pass
         for i in range(self.rows):
             for j in range(self.cols):
                 self.update_cell(i, j)
-        #self.update_cell(game.players[0].row, game.players[0].column)
 
         if keycode[1] == 'escape':
             keyboard.release()
@@ -147,7 +144,6 @@ class SweepyGame(GridLayout):
 class SweepyApp(App):
     def build(self):
         return WholeWindow(15, 15, 2)
-        #return SweepyGame(15, 25, 2)
 
 
 if __name__ == '__main__':
