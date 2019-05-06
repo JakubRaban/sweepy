@@ -105,15 +105,15 @@ class Cell:
                 return ActionOutcome.UNCOVER_CORRECT
 
     def toggle_flag(self, player):
-        if self.flagging_player is not None:
+        if self.flagging_player is not None and not self.has_mine:
             self.flagging_player = None
-            return ActionOutcome.NO_OUTCOME
         else:
             self.flagging_player = player
             if self.has_mine:
                 return ActionOutcome.FLAG_CORRECT
             else:
                 return ActionOutcome.FLAG_INCORRECT
+        return ActionOutcome.NO_OUTCOME
 
 
 class ActionOutcome(Enum):
