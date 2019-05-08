@@ -84,7 +84,7 @@ class SweepyGame(GridLayout):
             else:
                 filename += ("_" + str(our_cell.mines_around))
         if filename.find("mine") == -1:
-            if our_cell.flagging_player is not None:
+            if our_cell.flagging_player is not None and not our_cell.is_uncovered:
                 filename += "_flag"
                 if our_cell.has_mine:
                     filename += "_ok"
@@ -143,7 +143,7 @@ class SweepyGame(GridLayout):
 
 class SweepyApp(App):
     def build(self):
-        return WholeWindow(30, 35, 2)
+        return WholeWindow(20, 25, 2)
 
 
 if __name__ == '__main__':
