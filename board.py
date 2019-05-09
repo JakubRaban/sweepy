@@ -11,16 +11,18 @@ class Board:
         for i in range(rows):
             for j in range(columns):
                 self.cells[(i, j)] = Cell(i, j)
-        self.spawn_mines(filling_ratio)
+        self.total_number_of_mines = int(self.rows * self.columns * filling_ratio)
+        self.remaining_mines = self.total_number_of_mines
+        self.spawn_mines(self.total_number_of_mines)
         board_correct = self.assign_number_of_mines_around_to_cells()
         if not board_correct:
             self.__init__(rows, columns, filling_ratio)
 
-    def spawn_mines(self, filling_ratio=0.18):
+    def spawn_mines(self, number_of_mines):
         all_coordinates = list(self.cells.keys())
         self.remove_corners_from_coordinates(all_coordinates)
         shuffle(all_coordinates)
-        for i in range(int(self.rows * self.columns * filling_ratio)):
+        for i in range(number_of_mines):
             self.cells[all_coordinates[i]].has_mine = True
 
     def remove_corners_from_coordinates(self, all_coordinates):
@@ -47,10 +49,15 @@ class Board:
             for cell in adjacent_cells:
                 self.uncover_cell(cell[0], cell[1], player)
             return ActionOutcome.UNCOVER_CORRECT
+        if uncover_status == ActionOutcome.EXPLODED:
+            self.remaining_mines -= 1
         return uncover_status
 
     def toggle_flag(self, row, column, player):
-        return self.get_cell_by_indexes(row, column).toggle_flag(player)
+        outcome = self.get_cell_by_indexes(row, column).toggle_flag(player)
+        if outcome == ActionOutcome.FLAG_CORRECT:
+            self.remaining_mines -= 1
+        return outcome
 
     def get_cell_by_indexes(self, row, column):
         return self.cells[(row, column)]

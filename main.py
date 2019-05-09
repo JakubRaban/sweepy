@@ -35,19 +35,24 @@ class WholeWindow(BoxLayout):
         super().__init__(**kwargs)
         self.game = Game(board_height, board_width, players)
 
+        self.end = Label(text='Koniec', color=[0,0,0,0])
+        self.number_of_mines = Label(text="Miny: " + str(self.game.board.remaining_mines))
         score_player_blue = Label(text='0', bold=True, color=[63 / 255, 115 / 255, 232 / 255, 0])
         score_player_red = Label(text='0', bold=True, color=[203 / 255, 30 / 255, 30 / 255, 0])
         score_player_green = Label(text='0', bold=True, color=[53 / 255, 219 / 255, 35 / 255, 0])
         score_player_yellow = Label(text='0', bold=True, color=[255 / 255, 186 / 255, 0, 0])
         self.score_labels = [score_player_blue, score_player_red, score_player_green, score_player_yellow]
-        permutation_matrix = [2, 1, 0, 3]
-        self.score_labels = self.score_labels[0:players-1]
+
+        for i in range(4)[players:4]:
+            self.score_labels[i].color = [0, 0, 0, 0]
 
         self.orientation = 'vertical'
-        self.score_table = GridLayout(height=50, size_hint_y=None, rows=2, cols=2)
+        self.score_table = GridLayout(height=50, size_hint_y=None, rows=2, cols=3)
         self.score_table.add_widget(score_player_green)
+        self.score_table.add_widget(self.end)
         self.score_table.add_widget(score_player_red)
         self.score_table.add_widget(score_player_blue)
+        self.score_table.add_widget(self.number_of_mines)
         self.score_table.add_widget(score_player_yellow)
         self.add_widget(self.score_table)
         self.game_grid = GameBoard(board_height, board_width, players)
@@ -61,8 +66,11 @@ class WholeWindow(BoxLayout):
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
     def update_labels(self):
-        for index, label in enumerate(self.score_labels):
-            label.text = str(self.game.players[index].score)
+        for index in range(len(self.game.players)):
+            self.score_labels[index].text = str(self.game.players[index].score)
+        self.number_of_mines.text = "Miny: " + str(self.game.board.remaining_mines)
+        if self.game.is_finished():
+            self.end.color = [1,0,0,0]
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_keyboard_down)
@@ -95,7 +103,7 @@ class WholeWindow(BoxLayout):
         elif keycode[1] == 'g':
             self.game.flag_cell(1)
 
-        if keycode[1] in ['.', 'g']:
+        if keycode[1] in ['.', 'g', ',', 'f']:
             self.update_labels()
 
         for i in range(self.game_grid.rows):
@@ -117,8 +125,9 @@ class GameBoard(GridLayout):
         Window.size = 27 * self.cols - 2, 27 * self.rows - 2 + 50
         for i in range(self.rows):
             for j in range(self.cols):
-                self.all_tiles[(i, j)] = Image(source='images/tile.png', width=25, height=25, size_hint_x=None, size_hint_y=None)
-                self.add_widget(self.all_tiles.get((i, j)))
+                self.all_tiles[(i, j)] = Image(source='images/tile.png', width=25,
+                                               height=25, size_hint_x=None, size_hint_y=None)
+                self.add_widget(self.all_tiles[(i, j)])
         self.all_tiles[(board_height - 1, 0)].source = 'images/tile_player_blue.png'
         if players >= 2:
             self.all_tiles[(0, board_width - 1)].source = 'images/tile_player_red.png'

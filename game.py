@@ -47,3 +47,10 @@ class Game:
             current_player.add_points(1)
         elif flagging_outcome == ActionOutcome.FLAG_INCORRECT:
             current_player.add_points(-5)
+
+    def all_players_dead(self):
+        return len([player.is_dead for player in self.players if not player.is_dead]) == 0
+
+    def is_finished(self):
+        return self.board.remaining_mines == 0 or self.all_players_dead()
+
