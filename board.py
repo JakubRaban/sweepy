@@ -107,7 +107,7 @@ class Cell:
     def toggle_flag(self, player):
         if self.flagging_player is not None and not self.has_mine:
             self.flagging_player = None
-        else:
+        elif not self.is_uncovered:
             self.flagging_player = player
             if self.has_mine:
                 return ActionOutcome.FLAG_CORRECT
