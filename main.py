@@ -43,7 +43,7 @@ class WholeWindow(BoxLayout):
         self.game = Game(board_height, board_width, players)
 
         self.end = Label(text='Koniec', color=[0,0,0,0])
-        self.number_of_mines = Label(text="Miny: " + str(self.game.board.remaining_mines))
+        self.number_of_mines = Label(text=self.get_remaining_mines_text())
         score_player_blue = Label(text='0', bold=True, color=[63 / 255, 115 / 255, 232 / 255, 0])
         score_player_red = Label(text='0', bold=True, color=[203 / 255, 30 / 255, 30 / 255, 0])
         score_player_green = Label(text='0', bold=True, color=[53 / 255, 219 / 255, 35 / 255, 0])
@@ -75,9 +75,12 @@ class WholeWindow(BoxLayout):
     def update_labels(self):
         for index in range(len(self.game.players)):
             self.score_labels[index].text = str(self.game.players[index].score)
-        self.number_of_mines.text = "Miny: " + str(self.game.board.remaining_mines)
+        self.number_of_mines.text = self.get_remaining_mines_text()
         if self.game.is_finished():
             self.end.color = [1,0,0,0]
+
+    def get_remaining_mines_text(self):
+        return "Miny: " + str(self.game.board.remaining_mines) + "/" + str(self.game.board.total_number_of_mines)
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_keyboard_down)
