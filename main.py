@@ -8,6 +8,13 @@ from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 
 from board import MoveDirection
 from game import Game
+import os
+
+
+def get_screen_size():
+    screen_info = os.popen("xrandr -q -d :0").readlines()[0]
+    screen_info_split = screen_info.split()
+    return int(screen_info_split[7]), int(screen_info_split[9][:-1])
 
 
 class MenuScreen(Screen):
@@ -118,15 +125,22 @@ class WholeWindow(BoxLayout):
 class GameBoard(GridLayout):
     def __init__(self, board_height, board_width, players, **kwargs):
         super(GameBoard, self).__init__(**kwargs)
+        tile_spacing = 2
+        scoreboard_height = 50
         self.cols = board_width
         self.rows = board_height
-        self.spacing = [2, 2]
+        self.spacing = [tile_spacing] * 2
         self.all_tiles = dict()
-        Window.size = 27 * self.cols - 2, 27 * self.rows - 2 + 50
+        screen_size = get_screen_size()
+        tile_size_x = int(0.85 * screen_size[0] / board_width)
+        tile_size_y = int(0.85 * (screen_size[1] - scoreboard_height) / board_height)
+        tile_size = min(tile_size_x, tile_size_y)
+        Window.size = (tile_size + tile_spacing) * self.cols - tile_spacing,\
+                      (tile_size + tile_spacing) * self.rows - tile_spacing + scoreboard_height
         for i in range(self.rows):
             for j in range(self.cols):
-                self.all_tiles[(i, j)] = Image(source='images/tile.png', width=25,
-                                               height=25, size_hint_x=None, size_hint_y=None)
+                self.all_tiles[(i, j)] = Image(source='images/tile.png', width=tile_size,
+                                               height=tile_size, size_hint_x=None, size_hint_y=None)
                 self.add_widget(self.all_tiles[(i, j)])
         self.all_tiles[(board_height - 1, 0)].source = 'images/tile_player_blue.png'
         if players >= 2:
@@ -160,7 +174,7 @@ class GameBoard(GridLayout):
 
 class SweepyApp(App):
     def build(self):
-        return WholeWindow(20, 25, 2)
+        return WholeWindow(30, 40, 2)
 
 
 if __name__ == '__main__':
