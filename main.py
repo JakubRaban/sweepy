@@ -5,6 +5,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
+from kivy.uix.widget import Widget
 
 from board import MoveDirection
 from game import Game
@@ -175,9 +176,18 @@ class GameBoard(GridLayout):
         self.all_tiles[(row, column)].source = filename
 
 
+class TestJoystick(Widget):
+    def __init__(self, **kwargs):
+        super(TestJoystick, self).__init__(**kwargs)
+        Window.bind(on_joy_button_down=self.on_joy_button_down)
+
+    def on_joy_button_down(self, win, stickid, buttonid):
+        print('button', win, stickid, buttonid)
+
 class SweepyApp(App):
     def build(self):
         return WholeWindow(30, 40, 2)
+        #return TestJoystick()
 
 
 if __name__ == '__main__':
