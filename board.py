@@ -78,7 +78,7 @@ class Board:
             new_coordinates[0] = abs(abs(new_coordinates[0]) - self.rows)
         if not new_coordinates[1] in range(self.columns):
             new_coordinates[1] = abs(abs(new_coordinates[1]) - self.columns)
-        return new_coordinates
+        return tuple(new_coordinates)
 
     def get_adjacent_cells_coordinates(self, row, column):  # Czy można to zamienić na generator?
         adjacent_cells = []
@@ -89,6 +89,9 @@ class Board:
         adjacent_cells.remove((row, column))
         return adjacent_cells
 
+    def get_covered_cells(self):
+        return [cell for cell in list(self.cells.values()) if not cell.is_uncovered]
+
 
 class Cell:
     def __init__(self, row, column):
@@ -98,6 +101,7 @@ class Cell:
         self.mines_around = 0
         self.is_uncovered = False
         self.flagging_player = None
+        self.perk = None
 
     def uncover(self, player):
         if self.is_uncovered or self.flagging_player is not None:

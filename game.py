@@ -1,4 +1,5 @@
 
+from random import shuffle
 from board import Board, ActionOutcome
 from player import Player, PlayerColor
 
@@ -31,6 +32,8 @@ class Game:
         coords = self.board.get_cell_towards(moving_player.row, moving_player.column, move_direction)
         if self.can_move_to(coords[0], coords[1]) and not self.players[player_id].is_dead:
             self.players[player_id].set_new_position(coords)
+            if self.board.cells[coords].perk is not None:
+                self.board.cells[coords].perk = None
 
     def uncover_cell(self, player_id):
         current_player = self.players[player_id]
@@ -54,3 +57,11 @@ class Game:
     def is_finished(self):
         return self.board.remaining_mines == 0 or self.all_players_dead()
 
+    def put_perk(self):
+        possible_cells = self.board.get_covered_cells()
+        if len(possible_cells) == 0:
+            return None
+        shuffle(possible_cells)
+        cell_to_perk = possible_cells[0]
+        cell_to_perk.perk = 'p'
+        return cell_to_perk.row, cell_to_perk.column

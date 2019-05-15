@@ -1,4 +1,5 @@
 from kivy.app import App
+from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
@@ -38,6 +39,14 @@ sm.add_widget(SummaryScreen(name='summary'))
 sm.transition = NoTransition()
 
 
+class ScoreLabel(Label):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.font_size = 24
+        self.bold = True
+        self.text = '0'
+
+
 class WholeWindow(BoxLayout):
     def __init__(self, board_height, board_width, players, **kwargs):
         super().__init__(**kwargs)
@@ -72,6 +81,13 @@ class WholeWindow(BoxLayout):
         if self._keyboard.widget:
             pass
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
+
+        Clock.schedule_interval(lambda dt: self.perk_event(), 5)
+
+    def perk_event(self):
+        perked_cell = self.game.put_perk()
+        if perked_cell is not None:
+            self.game_grid.update_cell(perked_cell[0], perked_cell[1], self.game)
 
     def update_labels(self):
         for index in range(len(self.game.players)):
@@ -157,6 +173,8 @@ class GameBoard(GridLayout):
     def update_cell(self, row, column, game):
         filename = "images/tile"
         our_cell = game.board.get_cell_by_indexes(row, column)
+        if our_cell.perk is not None:
+            filename += "_perk"
         if our_cell.is_uncovered:
             if our_cell.has_mine:
                 filename += "_mine"
