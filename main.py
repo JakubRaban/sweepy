@@ -38,6 +38,14 @@ sm.add_widget(SummaryScreen(name='summary'))
 sm.transition = NoTransition()
 
 
+class ScoreLabel(Label):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.font_size = 24
+        self.bold = True
+        self.text = '0'
+
+
 class WholeWindow(BoxLayout):
     def __init__(self, board_height, board_width, players, **kwargs):
         super().__init__(**kwargs)
@@ -45,10 +53,10 @@ class WholeWindow(BoxLayout):
 
         self.end = Label(text='Koniec', color=[0,0,0,0])
         self.number_of_mines = Label(text=self.get_remaining_mines_text())
-        score_player_blue = Label(text='0', bold=True, color=[63 / 255, 115 / 255, 232 / 255, 0])
-        score_player_red = Label(text='0', bold=True, color=[203 / 255, 30 / 255, 30 / 255, 0])
-        score_player_green = Label(text='0', bold=True, color=[53 / 255, 219 / 255, 35 / 255, 0])
-        score_player_yellow = Label(text='0', bold=True, color=[255 / 255, 186 / 255, 0, 0])
+        score_player_blue = ScoreLabel(color=[63 / 255, 115 / 255, 232 / 255, 0])
+        score_player_red = ScoreLabel(color=[203 / 255, 30 / 255, 30 / 255, 0])
+        score_player_green = ScoreLabel(color=[53 / 255, 219 / 255, 35 / 255, 0])
+        score_player_yellow = ScoreLabel(color=[255 / 255, 186 / 255, 0, 0])
         self.score_labels = [score_player_blue, score_player_red, score_player_green, score_player_yellow]
 
         for i in range(4)[players:4]:
@@ -136,8 +144,8 @@ class GameBoard(GridLayout):
         self.spacing = [tile_spacing] * 2
         self.all_tiles = dict()
         screen_size = get_screen_size()
-        tile_size_x = int(0.85 * screen_size[0] / board_width)
-        tile_size_y = int(0.85 * (screen_size[1] - scoreboard_height) / board_height)
+        tile_size_x = int(0.85 * min(screen_size[0], 1920) / board_width)
+        tile_size_y = int(0.85 * (min(screen_size[1], 1080) - scoreboard_height) / board_height)
         tile_size = min(tile_size_x, tile_size_y)
         Window.size = (tile_size + tile_spacing) * self.cols - tile_spacing,\
                       (tile_size + tile_spacing) * self.rows - tile_spacing + scoreboard_height
