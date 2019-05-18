@@ -3,7 +3,6 @@ from random import shuffle, uniform
 from board import Board, ActionOutcome
 from player import Player, PlayerColor
 from kivy.clock import Clock
-import copy
 
 
 class Game:
@@ -34,7 +33,7 @@ class Game:
     def move_player(self, player_id, move_direction):
         moving_player = self.players[player_id]
         coords = self.board.get_cell_towards(moving_player.row, moving_player.column, move_direction)
-        if self.can_move_to(coords[0], coords[1]) and not self.players[player_id].is_dead:
+        if self.can_move_to(coords[0], coords[1]) and not self.players[player_id].is_dead and not self.players[player_id].has_effect(Perk.Effect.IMMOBILISED):
             self.players[player_id].set_new_position(coords)
             new_perk = self.board.cells[coords].perk
             if new_perk is not None:
@@ -45,8 +44,10 @@ class Game:
         current_player = self.players[player_id]
         player_position = current_player.get_position()
         uncover_outcome = self.board.uncover_cell(player_position[0], player_position[1], current_player)
-        if uncover_outcome == ActionOutcome.EXPLODED:
+        if uncover_outcome == ActionOutcome.EXPLODED and not self.players[player_id].has_perk(Perk.Name.ADDITIONAL_LIFE):
             current_player.is_dead = True
+        elif uncover_outcome == ActionOutcome.EXPLODED and self.players[player_id].has_perk(Perk.Name.ADDITIONAL_LIFE):
+            PerkManager.empty_perk.activate(player_id, self.players)
 
     def flag_cell(self, player_id):
         current_player = self.players[player_id]
@@ -95,7 +96,10 @@ class Perk:
             current_perk.clock_event.cancel()
         if current_perk is not None:
             current_perk.cancel(player_id, players)
-        players[player_id].perk = self
+        if self.name is not None:
+            players[player_id].perk = self
+        else:
+            players[player_id].perk = None
         for i, p in enumerate(players):
             if i != player_id:
                 p.effects.append(self.effect_on_others)
@@ -123,10 +127,14 @@ class Perk:
 
 
 class PerkManager:
+    empty_perk = Perk(None, None)
+
     def __init__(self):
         self.perks = [
-            (Perk.Name.DOUBLE_POINTS, None, 0.5),
-            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 0.5)
+            (Perk.Name.DOUBLE_POINTS, None, 1/4),
+            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 1/4),
+            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 1/4),
+            (Perk.Name.ADDITIONAL_LIFE, None, 1/4)
         ]
 
     def random_perk(self):
