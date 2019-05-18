@@ -134,11 +134,11 @@ class PerkManager:
 
     def __init__(self):
         self.perks = [
-            (Perk.Name.DOUBLE_POINTS, None, 0/5),
-            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 0/5),
-            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 0/5),
-            (Perk.Name.ADDITIONAL_LIFE, None, 0/5),
-            (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 5/5)
+            (Perk.Name.DOUBLE_POINTS, None, 1/5),
+            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 1/5),
+            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 1/5),
+            (Perk.Name.ADDITIONAL_LIFE, None, 1/5),
+            (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 1/5)
         ]
 
     def random_perk(self):
