@@ -89,8 +89,11 @@ class Board:
         adjacent_cells.remove((row, column))
         return adjacent_cells
 
-    def get_covered_cells(self):
-        return [cell for cell in list(self.cells.values()) if not cell.is_uncovered]
+    def get_perkable_cells(self, players):
+        return [cell for cell in list(self.cells.values())
+                if not cell.is_uncovered
+                and cell.perk is None
+                and not cell.get_position() in [player.get_position() for player in players]]
 
 
 class Cell:
@@ -126,6 +129,9 @@ class Cell:
             else:
                 return ActionOutcome.FLAG_INCORRECT
         return ActionOutcome.NO_OUTCOME
+
+    def get_position(self):
+        return self.row, self.column
 
 
 class ActionOutcome(Enum):

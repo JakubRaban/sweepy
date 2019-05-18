@@ -71,7 +71,7 @@ class Game:
         return self.board.remaining_mines == 0 or self.all_players_dead()
 
     def put_perk_on_board(self):
-        possible_cells = self.board.get_covered_cells()
+        possible_cells = self.board.get_perkable_cells(self.players)
         if len(possible_cells) == 0:
             return None
         shuffle(possible_cells)
