@@ -51,7 +51,10 @@ class Game:
         player_position = current_player.get_position()
         flagging_outcome = self.board.toggle_flag(player_position[0], player_position[1], current_player)
         if flagging_outcome == ActionOutcome.FLAG_CORRECT:
-            current_player.add_points(1)
+            points_to_add = 1
+            if self.players[player_id].has_perk(Perk.Name.DOUBLE_POINTS):
+                points_to_add += 1
+            current_player.add_points(points_to_add)
         elif flagging_outcome == ActionOutcome.FLAG_INCORRECT:
             current_player.add_points(-5)
 
@@ -73,7 +76,8 @@ class Game:
     def collect_perk(self, perk, player_id):
         perk.activate(player_id, self.players)
         perk_lasting_time = uniform(10, 20)
-        perk.clock_event = Clock.schedule_interval(lambda dt: perk.cancel(player_id, self.players), perk_lasting_time)
+        print("activated perk for", perk_lasting_time, "seconds")
+        perk.clock_event = Clock.schedule_once(lambda dt: perk.cancel(player_id, self.players), perk_lasting_time)
 
 
 class Perk:
@@ -84,14 +88,18 @@ class Perk:
 
     def activate(self, player_id, players):
         current_perk = players[player_id].perk
-        current_perk.cancel(player_id, players)
-        Clock.unschedule(self.clock_event)
+        if current_perk is not None:
+            current_perk.cancel(player_id, players)
+        if self.clock_event is not None:
+            Clock.unschedule(self.clock_event)
+        players[player_id].perk = self
         for i, p in enumerate(players):
             if i != player_id:
                 p.effects.append(self.effect_on_others)
 
     def cancel(self, player_id, players):
         players[player_id].perk = None
+        print("perk cancelled")
         for i, p in enumerate(players):
             if i != player_id:
                 p.effects.remove(self.effect_on_others)

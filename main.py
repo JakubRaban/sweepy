@@ -9,7 +9,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.uix.widget import Widget
 
 from board import MoveDirection
-from game import Game
+from game import Game, Perk
 import os
 
 
@@ -144,8 +144,8 @@ class GameBoard(GridLayout):
         self.spacing = [tile_spacing] * 2
         self.all_tiles = dict()
         screen_size = get_screen_size()
-        tile_size_x = int(0.85 * screen_size[0] / board_width)
-        tile_size_y = int(0.85 * (screen_size[1] - scoreboard_height) / board_height)
+        tile_size_x = int(0.85 * min(1920, screen_size[0]) / board_width)
+        tile_size_y = int(0.85 * (min(1080, screen_size[1]) - scoreboard_height) / board_height)
         tile_size = min(tile_size_x, tile_size_y)
         Window.size = (tile_size + tile_spacing) * self.cols - tile_spacing,\
                       (tile_size + tile_spacing) * self.rows - tile_spacing + scoreboard_height
@@ -166,7 +166,7 @@ class GameBoard(GridLayout):
         filename = "images/tile"
         our_cell = game.board.get_cell_by_indexes(row, column)
         if our_cell.perk is not None:
-            filename += "_perk"
+            filename += ("_perk_" + our_cell.perk.name.value)
         if our_cell.is_uncovered:
             if our_cell.has_mine:
                 filename += "_mine"
@@ -180,7 +180,7 @@ class GameBoard(GridLayout):
                 else:
                     filename += "_bad"
             for player in game.players:
-                if player.get_position() == (row, column):
+                if player.get_position() == (row, column) and not player.has_effect(Perk.Effect.INVISIBLE):
                     filename += ("_player_" + player.color.value)
         filename += ".png"
         self.all_tiles[(row, column)].source = filename

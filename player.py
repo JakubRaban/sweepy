@@ -20,6 +20,12 @@ class Player:
     def add_points(self, delta):
         self.score += delta
 
+    def has_perk(self, perk_name):
+        return self.perk is not None and self.perk.name == perk_name
+
+    def has_effect(self, effect):
+        return effect in self.effects
+
 
 class PlayerColor(Enum):
     RED = "red"
