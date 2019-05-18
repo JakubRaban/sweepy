@@ -8,6 +8,8 @@ class Player:
         self.score = 0
         self.is_dead = False
         self.color = color
+        self.perk = None
+        self.effects = list()
 
     def set_new_position(self, coords):
         self.row, self.column = coords[0], coords[1]

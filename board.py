@@ -107,6 +107,7 @@ class Cell:
         if self.is_uncovered or self.flagging_player is not None:
             return ActionOutcome.NO_OUTCOME
         self.is_uncovered = True
+        self.perk = None
         if self.has_mine:
             return ActionOutcome.EXPLODED
         else:

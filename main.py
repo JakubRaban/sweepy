@@ -39,14 +39,6 @@ sm.add_widget(SummaryScreen(name='summary'))
 sm.transition = NoTransition()
 
 
-class ScoreLabel(Label):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.font_size = 24
-        self.bold = True
-        self.text = '0'
-
-
 class WholeWindow(BoxLayout):
     def __init__(self, board_height, board_width, players, **kwargs):
         super().__init__(**kwargs)
@@ -85,7 +77,7 @@ class WholeWindow(BoxLayout):
         Clock.schedule_interval(lambda dt: self.perk_event(), 5)
 
     def perk_event(self):
-        perked_cell = self.game.put_perk()
+        perked_cell = self.game.put_perk_on_board()
         if perked_cell is not None:
             self.game_grid.update_cell(perked_cell[0], perked_cell[1], self.game)
 
