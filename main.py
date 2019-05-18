@@ -1,4 +1,5 @@
 from kivy.app import App
+from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
@@ -8,7 +9,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.uix.widget import Widget
 
 from board import MoveDirection
-from game import Game
+from game import Game, Perk
 import os
 
 
@@ -50,6 +51,7 @@ class WholeWindow(BoxLayout):
     def __init__(self, board_height, board_width, players, **kwargs):
         super().__init__(**kwargs)
         self.game = Game(board_height, board_width, players)
+        self.game.window = self
 
         self.end = Label(text='Koniec', color=[0,0,0,0])
         self.number_of_mines = Label(text=self.get_remaining_mines_text())
@@ -58,17 +60,26 @@ class WholeWindow(BoxLayout):
         score_player_green = ScoreLabel(color=[53 / 255, 219 / 255, 35 / 255, 0])
         score_player_yellow = ScoreLabel(color=[255 / 255, 186 / 255, 0, 0])
         self.score_labels = [score_player_blue, score_player_red, score_player_green, score_player_yellow]
+        perk_player_blue = Image(source="images/tile.png")
+        perk_player_red = Image(source="images/tile.png")
+        perk_player_green = Image(source="images/tile.png")
+        perk_player_yellow = Image(source="images/tile.png")
+        self.perk_indicators = [perk_player_blue, perk_player_red, perk_player_green, perk_player_yellow]
 
         for i in range(4)[players:4]:
             self.score_labels[i].color = [0, 0, 0, 0]
 
         self.orientation = 'vertical'
-        self.score_table = GridLayout(height=50, size_hint_y=None, rows=2, cols=3)
+        self.score_table = GridLayout(height=50, size_hint_y=None, rows=2, cols=5, spacing=[2, 2])
         self.score_table.add_widget(score_player_green)
+        self.score_table.add_widget(perk_player_green)
         self.score_table.add_widget(self.end)
+        self.score_table.add_widget(perk_player_red)
         self.score_table.add_widget(score_player_red)
         self.score_table.add_widget(score_player_blue)
+        self.score_table.add_widget(perk_player_blue)
         self.score_table.add_widget(self.number_of_mines)
+        self.score_table.add_widget(perk_player_yellow)
         self.score_table.add_widget(score_player_yellow)
         self.add_widget(self.score_table)
         self.game_grid = GameBoard(board_height, board_width, players)
@@ -81,9 +92,23 @@ class WholeWindow(BoxLayout):
             pass
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
+        Clock.schedule_interval(lambda dt: self.perk_event(), 25)
+
+    def perk_event(self):
+        perked_cell = self.game.put_perk_on_board()
+        if perked_cell is not None:
+            self.game_grid.update_cell(perked_cell[0], perked_cell[1], self.game)
+
     def update_labels(self):
         for index in range(len(self.game.players)):
             self.score_labels[index].text = str(self.game.players[index].score)
+            filename = 'images/tile'
+            if self.game.players[index].perk is not None and not self.game.players[index].is_dead:
+                filename += ("_perk_" + self.game.players[index].perk.name.value)
+            if self.game.players[index].is_dead:
+                filename += "_mine"
+            filename += ".png"
+            self.perk_indicators[index].source = filename
         self.number_of_mines.text = self.get_remaining_mines_text()
         if self.game.is_finished():
             self.end.color = [1,0,0,0]
@@ -144,8 +169,8 @@ class GameBoard(GridLayout):
         self.spacing = [tile_spacing] * 2
         self.all_tiles = dict()
         screen_size = get_screen_size()
-        tile_size_x = int(0.85 * min(screen_size[0], 1920) / board_width)
-        tile_size_y = int(0.85 * (min(screen_size[1], 1080) - scoreboard_height) / board_height)
+        tile_size_x = int(0.85 * min(1920, screen_size[0]) / board_width)
+        tile_size_y = int(0.85 * (min(1080, screen_size[1]) - scoreboard_height) / board_height)
         tile_size = min(tile_size_x, tile_size_y)
         Window.size = (tile_size + tile_spacing) * self.cols - tile_spacing,\
                       (tile_size + tile_spacing) * self.rows - tile_spacing + scoreboard_height
@@ -165,6 +190,8 @@ class GameBoard(GridLayout):
     def update_cell(self, row, column, game):
         filename = "images/tile"
         our_cell = game.board.get_cell_by_indexes(row, column)
+        if our_cell.perk is not None:
+            filename += ("_perk_" + our_cell.perk.name.value)
         if our_cell.is_uncovered:
             if our_cell.has_mine:
                 filename += "_mine"
@@ -178,7 +205,7 @@ class GameBoard(GridLayout):
                 else:
                     filename += "_bad"
             for player in game.players:
-                if player.get_position() == (row, column):
+                if player.get_position() == (row, column) and not player.has_effect(Perk.Effect.INVISIBLE):
                     filename += ("_player_" + player.color.value)
         filename += ".png"
         self.all_tiles[(row, column)].source = filename
@@ -194,7 +221,7 @@ class TestJoystick(Widget):
 
 class SweepyApp(App):
     def build(self):
-        return WholeWindow(30, 40, 2)
+        return WholeWindow(20, 25, 2)
         #return TestJoystick()
 
 

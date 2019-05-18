@@ -8,6 +8,8 @@ class Player:
         self.score = 0
         self.is_dead = False
         self.color = color
+        self.perk = None
+        self.effects = list()
 
     def set_new_position(self, coords):
         self.row, self.column = coords[0], coords[1]
@@ -17,6 +19,12 @@ class Player:
 
     def add_points(self, delta):
         self.score += delta
+
+    def has_perk(self, perk_name):
+        return self.perk is not None and self.perk.name == perk_name
+
+    def has_effect(self, effect):
+        return effect in self.effects
 
 
 class PlayerColor(Enum):

@@ -78,9 +78,9 @@ class Board:
             new_coordinates[0] = abs(abs(new_coordinates[0]) - self.rows)
         if not new_coordinates[1] in range(self.columns):
             new_coordinates[1] = abs(abs(new_coordinates[1]) - self.columns)
-        return new_coordinates
+        return tuple(new_coordinates)
 
-    def get_adjacent_cells_coordinates(self, row, column):  # Czy można to zamienić na generator?
+    def get_adjacent_cells_coordinates(self, row, column):
         adjacent_cells = []
         for i in [-1, 0, 1]:
             for j in [-1, 0, 1]:
@@ -88,6 +88,13 @@ class Board:
                     adjacent_cells.append((row + i, column + j))
         adjacent_cells.remove((row, column))
         return adjacent_cells
+
+    def get_perkable_cells(self, players):
+        return [cell for cell in list(self.cells.values())
+                if not cell.is_uncovered
+                and cell.perk is None
+                and cell.flagging_player is None
+                and not cell.get_position() in [player.get_position() for player in players]]
 
 
 class Cell:
@@ -98,11 +105,13 @@ class Cell:
         self.mines_around = 0
         self.is_uncovered = False
         self.flagging_player = None
+        self.perk = None
 
     def uncover(self, player):
         if self.is_uncovered or self.flagging_player is not None:
             return ActionOutcome.NO_OUTCOME
         self.is_uncovered = True
+        self.perk = None
         if self.has_mine:
             return ActionOutcome.EXPLODED
         else:
@@ -121,6 +130,9 @@ class Cell:
             else:
                 return ActionOutcome.FLAG_INCORRECT
         return ActionOutcome.NO_OUTCOME
+
+    def get_position(self):
+        return self.row, self.column
 
 
 class ActionOutcome(Enum):
