@@ -43,6 +43,7 @@ class WholeWindow(BoxLayout):
     def __init__(self, board_height, board_width, players, **kwargs):
         super().__init__(**kwargs)
         self.game = Game(board_height, board_width, players)
+        self.game.window = self
 
         self.end = Label(text='Koniec', color=[0,0,0,0])
         self.number_of_mines = Label(text=self.get_remaining_mines_text())
@@ -51,17 +52,26 @@ class WholeWindow(BoxLayout):
         score_player_green = Label(text='0', bold=True, color=[53 / 255, 219 / 255, 35 / 255, 0])
         score_player_yellow = Label(text='0', bold=True, color=[255 / 255, 186 / 255, 0, 0])
         self.score_labels = [score_player_blue, score_player_red, score_player_green, score_player_yellow]
+        perk_player_blue = Image(source="images/tile.png")
+        perk_player_red = Image(source="images/tile.png")
+        perk_player_green = Image(source="images/tile.png")
+        perk_player_yellow = Image(source="images/tile.png")
+        self.perk_indicators = [perk_player_blue, perk_player_red, perk_player_green, perk_player_yellow]
 
         for i in range(4)[players:4]:
             self.score_labels[i].color = [0, 0, 0, 0]
 
         self.orientation = 'vertical'
-        self.score_table = GridLayout(height=50, size_hint_y=None, rows=2, cols=3)
+        self.score_table = GridLayout(height=50, size_hint_y=None, rows=2, cols=5, spacing=[2, 2])
         self.score_table.add_widget(score_player_green)
+        self.score_table.add_widget(perk_player_green)
         self.score_table.add_widget(self.end)
+        self.score_table.add_widget(perk_player_red)
         self.score_table.add_widget(score_player_red)
         self.score_table.add_widget(score_player_blue)
+        self.score_table.add_widget(perk_player_blue)
         self.score_table.add_widget(self.number_of_mines)
+        self.score_table.add_widget(perk_player_yellow)
         self.score_table.add_widget(score_player_yellow)
         self.add_widget(self.score_table)
         self.game_grid = GameBoard(board_height, board_width, players)
@@ -84,9 +94,15 @@ class WholeWindow(BoxLayout):
     def update_labels(self):
         for index in range(len(self.game.players)):
             self.score_labels[index].text = str(self.game.players[index].score)
+            filename = 'images/tile'
+            if self.game.players[index].perk is not None:
+                filename += ("_perk_" + self.game.players[index].perk.name.value)
+            filename += ".png"
+            self.perk_indicators[index].source = filename
         self.number_of_mines.text = self.get_remaining_mines_text()
         if self.game.is_finished():
             self.end.color = [1,0,0,0]
+
 
     def get_remaining_mines_text(self):
         return "Miny: " + str(self.game.board.remaining_mines) + "/" + str(self.game.board.total_number_of_mines)
@@ -196,7 +212,7 @@ class TestJoystick(Widget):
 
 class SweepyApp(App):
     def build(self):
-        return WholeWindow(30, 40, 2)
+        return WholeWindow(30, 40, 4)
         #return TestJoystick()
 
 

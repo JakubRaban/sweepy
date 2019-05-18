@@ -3,6 +3,7 @@ from random import shuffle, uniform
 from board import Board, ActionOutcome
 from player import Player, PlayerColor
 from kivy.clock import Clock
+import copy
 
 
 class Game:
@@ -10,6 +11,7 @@ class Game:
         self.board = Board(rows, columns)
         self.players = []
         self.perk_manager = PerkManager()
+        self.window = None
         for index in range(nb_of_players):
             player = None
             if index == 0:
@@ -76,8 +78,9 @@ class Game:
     def collect_perk(self, perk, player_id):
         perk.activate(player_id, self.players)
         perk_lasting_time = uniform(10, 20)
-        print("activated perk for", perk_lasting_time, "seconds")
         perk.clock_event = Clock.schedule_once(lambda dt: perk.cancel(player_id, self.players), perk_lasting_time)
+        Clock.schedule_once(lambda dt: self.window.update_labels(), perk_lasting_time)
+        self.window.update_labels()
 
 
 class Perk:
@@ -88,21 +91,21 @@ class Perk:
 
     def activate(self, player_id, players):
         current_perk = players[player_id].perk
+        if current_perk is not None and current_perk.clock_event is not None:
+            current_perk.clock_event.cancel()
         if current_perk is not None:
             current_perk.cancel(player_id, players)
-        if self.clock_event is not None:
-            Clock.unschedule(self.clock_event)
         players[player_id].perk = self
         for i, p in enumerate(players):
             if i != player_id:
                 p.effects.append(self.effect_on_others)
 
     def cancel(self, player_id, players):
+        if self.effect_on_others is not None:
+            for i, p in enumerate(players):
+                if i != player_id:
+                    p.effects.remove(self.effect_on_others)
         players[player_id].perk = None
-        print("perk cancelled")
-        for i, p in enumerate(players):
-            if i != player_id:
-                p.effects.remove(self.effect_on_others)
 
     class Name(Enum):
         IMMOBILISE_ENEMIES = 'immobilise_enemies'
@@ -122,14 +125,14 @@ class Perk:
 class PerkManager:
     def __init__(self):
         self.perks = [
-            (Perk(Perk.Name.DOUBLE_POINTS, None), 0.5),
-            (Perk(Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE), 0.5)
+            (Perk.Name.DOUBLE_POINTS, None, 0.5),
+            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 0.5)
         ]
 
     def random_perk(self):
         random = uniform(0, 1)
         acc = 0.0
-        for perk in self.perks:
-            acc += perk[1]
+        for perk_desc in self.perks:
+            acc += perk_desc[2]
             if random < acc:
-                return perk[0]
+                return Perk(perk_desc[0], perk_desc[1])
