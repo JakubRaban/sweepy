@@ -80,7 +80,7 @@ class Board:
             new_coordinates[1] = abs(abs(new_coordinates[1]) - self.columns)
         return tuple(new_coordinates)
 
-    def get_adjacent_cells_coordinates(self, row, column):  # Czy można to zamienić na generator?
+    def get_adjacent_cells_coordinates(self, row, column):
         adjacent_cells = []
         for i in [-1, 0, 1]:
             for j in [-1, 0, 1]:
@@ -93,6 +93,7 @@ class Board:
         return [cell for cell in list(self.cells.values())
                 if not cell.is_uncovered
                 and cell.perk is None
+                and cell.flagging_player is None
                 and not cell.get_position() in [player.get_position() for player in players]]
 
 
