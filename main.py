@@ -95,8 +95,10 @@ class WholeWindow(BoxLayout):
         for index in range(len(self.game.players)):
             self.score_labels[index].text = str(self.game.players[index].score)
             filename = 'images/tile'
-            if self.game.players[index].perk is not None:
+            if self.game.players[index].perk is not None and not self.game.players[index].is_dead:
                 filename += ("_perk_" + self.game.players[index].perk.name.value)
+            if self.game.players[index].is_dead:
+                filename += "_mine"
             filename += ".png"
             self.perk_indicators[index].source = filename
         self.number_of_mines.text = self.get_remaining_mines_text()
@@ -212,7 +214,7 @@ class TestJoystick(Widget):
 
 class SweepyApp(App):
     def build(self):
-        return WholeWindow(30, 40, 4)
+        return WholeWindow(20, 25, 4)
         #return TestJoystick()
 
 

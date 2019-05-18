@@ -59,7 +59,10 @@ class Game:
                 points_to_add += 1
             current_player.add_points(points_to_add)
         elif flagging_outcome == ActionOutcome.FLAG_INCORRECT:
-            current_player.add_points(-5)
+            if not current_player.has_effect(Perk.Effect.KILL_ON_BAD_FLAG):
+                current_player.add_points(-5)
+            else:
+                current_player.is_dead = True
 
     def all_players_dead(self):
         return len([player.is_dead for player in self.players if not player.is_dead]) == 0
@@ -131,10 +134,11 @@ class PerkManager:
 
     def __init__(self):
         self.perks = [
-            (Perk.Name.DOUBLE_POINTS, None, 1/4),
-            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 1/4),
-            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 1/4),
-            (Perk.Name.ADDITIONAL_LIFE, None, 1/4)
+            (Perk.Name.DOUBLE_POINTS, None, 0/5),
+            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 0/5),
+            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 0/5),
+            (Perk.Name.ADDITIONAL_LIFE, None, 0/5),
+            (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 5/5)
         ]
 
     def random_perk(self):
