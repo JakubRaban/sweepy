@@ -110,7 +110,7 @@ class WholeWindow(BoxLayout):
             pass
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
-        Clock.schedule_interval(lambda dt: self.perk_event(), 25)
+        Clock.schedule_interval(lambda dt: self.perk_event(), 5)
 
     def perk_event(self):
         perked_cell = self.game.put_perk_on_board()
@@ -151,6 +151,8 @@ class WholeWindow(BoxLayout):
             self.game.uncover_cell(0)
         elif keycode[1] == '.':
             self.game.flag_cell(0)
+        elif keycode[1] == '/':
+            self.game.drop_item(0)
 
         if keycode[1] == 'a':
             self.game.move_player(1, MoveDirection.LEFT)
@@ -164,8 +166,10 @@ class WholeWindow(BoxLayout):
             self.game.uncover_cell(1)
         elif keycode[1] == 'g':
             self.game.flag_cell(1)
+        elif keycode[1] == 'v':
+            self.game.drop_item(1)
 
-        if keycode[1] in ['.', 'g', ',', 'f']:
+        if keycode[1] in ['.', 'g', ',', 'f', '/', 'v']:
             self.update_labels()
 
         for i in range(self.game_grid.rows):
