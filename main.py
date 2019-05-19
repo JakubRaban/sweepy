@@ -45,6 +45,14 @@ class ScoreLabel(Label):
         self.font_size = 24
         self.bold = True
         self.text = '0'
+        self.size_hint_x = 0.1
+
+
+class PerkImage(Image):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.source = 'images/tile.png'
+        self.size_hint_x = 0.1
 
 
 class WholeWindow(BoxLayout):
@@ -60,17 +68,19 @@ class WholeWindow(BoxLayout):
         score_player_green = ScoreLabel(color=[53 / 255, 219 / 255, 35 / 255, 0])
         score_player_yellow = ScoreLabel(color=[255 / 255, 186 / 255, 0, 0])
         self.score_labels = [score_player_blue, score_player_red, score_player_green, score_player_yellow]
-        perk_player_blue = Image(source="images/tile.png")
-        perk_player_red = Image(source="images/tile.png")
-        perk_player_green = Image(source="images/tile.png")
-        perk_player_yellow = Image(source="images/tile.png")
+        perk_player_blue = PerkImage()
+        perk_player_red = PerkImage()
+        perk_player_green = PerkImage()
+        perk_player_yellow = PerkImage()
         self.perk_indicators = [perk_player_blue, perk_player_red, perk_player_green, perk_player_yellow]
 
         for i in range(4)[players:4]:
             self.score_labels[i].color = [0, 0, 0, 0]
 
         self.orientation = 'vertical'
-        self.score_table = GridLayout(height=50, size_hint_y=None, rows=2, cols=5, spacing=[2, 2])
+        scoreboard_height = 70
+        tile_spacing = 2
+        self.score_table = GridLayout(height=scoreboard_height, size_hint_y=None, rows=2, cols=5, spacing=[2, 2])
         self.score_table.add_widget(score_player_green)
         self.score_table.add_widget(perk_player_green)
         self.score_table.add_widget(self.end)
@@ -82,7 +92,15 @@ class WholeWindow(BoxLayout):
         self.score_table.add_widget(perk_player_yellow)
         self.score_table.add_widget(score_player_yellow)
         self.add_widget(self.score_table)
-        self.game_grid = GameBoard(board_height, board_width, players)
+
+        screen_size = get_screen_size()
+        tile_size_x = int(0.85 * min(1920, screen_size[0]) / board_width)
+        tile_size_y = int(0.85 * (min(1080, screen_size[1]) - scoreboard_height) / board_height)
+        tile_size = min(tile_size_x, tile_size_y)
+        Window.size = (tile_size + tile_spacing) * board_width - tile_spacing, \
+                      (tile_size + tile_spacing) * board_height - tile_spacing + scoreboard_height
+        self.game_grid = GameBoard(board_height, board_width, tile_size, players)
+        self.game_grid.spacing = [tile_spacing] * 2
         self.add_widget(self.game_grid)
 
         self._keyboard = Window.request_keyboard(
@@ -160,20 +178,11 @@ class WholeWindow(BoxLayout):
 
 
 class GameBoard(GridLayout):
-    def __init__(self, board_height, board_width, players, **kwargs):
+    def __init__(self, board_height, board_width, tile_size, players, **kwargs):
         super(GameBoard, self).__init__(**kwargs)
-        tile_spacing = 2
-        scoreboard_height = 50
         self.cols = board_width
         self.rows = board_height
-        self.spacing = [tile_spacing] * 2
         self.all_tiles = dict()
-        screen_size = get_screen_size()
-        tile_size_x = int(0.85 * min(1920, screen_size[0]) / board_width)
-        tile_size_y = int(0.85 * (min(1080, screen_size[1]) - scoreboard_height) / board_height)
-        tile_size = min(tile_size_x, tile_size_y)
-        Window.size = (tile_size + tile_spacing) * self.cols - tile_spacing,\
-                      (tile_size + tile_spacing) * self.rows - tile_spacing + scoreboard_height
         for i in range(self.rows):
             for j in range(self.cols):
                 self.all_tiles[(i, j)] = Image(source='images/tile.png', width=tile_size,
@@ -219,9 +228,10 @@ class TestJoystick(Widget):
     def on_joy_button_down(self, win, stickid, buttonid):
         print('button', win, stickid, buttonid)
 
+
 class SweepyApp(App):
     def build(self):
-        return WholeWindow(20, 25, 2)
+        return WholeWindow(15, 25, 2)
         #return TestJoystick()
 
 
