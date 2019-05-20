@@ -1,3 +1,5 @@
+from random import uniform
+
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -110,21 +112,22 @@ class WholeWindow(BoxLayout):
             pass
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
-        Clock.schedule_interval(lambda dt: self.perk_event(), 30)
+        Clock.schedule_once(lambda dt: self.perk_event(), uniform(20, 40))
 
     def perk_event(self):
         perked_cell = self.game.put_perk_on_board()
         if perked_cell is not None:
             self.game_grid.update_cell(perked_cell[0], perked_cell[1], self.game)
+        Clock.schedule_once(lambda dt: self.perk_event(), uniform(20, 40))
 
     def update_labels(self):
         for index in range(len(self.game.players)):
             self.score_labels[index].text = str(self.game.players[index].score)
             filename = 'images/tile'
-            if self.game.players[index].perk is not None and not self.game.players[index].is_dead:
-                filename += ("_perk_" + self.game.players[index].perk.name.value)
             if self.game.players[index].is_dead:
                 filename += "_mine"
+            elif self.game.players[index].perk is not None:
+                filename += ("_perk_" + self.game.players[index].perk.name.value)
             filename += ".png"
             self.perk_indicators[index].source = filename
         self.number_of_mines.text = self.get_remaining_mines_text()
@@ -250,7 +253,7 @@ class TestJoystick(Widget):
 
 class SweepyApp(App):
     def build(self):
-        return WholeWindow(15, 25, 2)
+        return WholeWindow(20, 25, 1)
         #return TestJoystick()
 
 

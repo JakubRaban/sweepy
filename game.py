@@ -71,6 +71,12 @@ class Game:
             self.board.get_cell_with_tuple(player_position).has_mine = True
             self.board.remaining_mines += 1
             PerkManager.empty_perk.activate(player_id, self.players)
+        if current_player.has_perk(Perk.Name.LOOK_ASIDE):
+            cells_around = self.board.get_adjacent_cells_coordinates(player_position[0], player_position[1])
+            affected_cells = cells_around + [player_position]
+            for cell_position in affected_cells:
+                if not self.board.get_cell_with_tuple(cell_position).has_mine:
+                    self.board.uncover_cell(cell_position[0], cell_position[1], player_id)
 
     def all_players_dead(self):
         return len([player.is_dead for player in self.players if not player.is_dead]) == 0
@@ -129,6 +135,7 @@ class Perk:
         DROP_MINE = 'drop_mine'
         ADDITIONAL_LIFE = 'additional_life'
         KILL_ENEMIES_ON_BAD_FLAG = 'kill_on_bad_flag'
+        LOOK_ASIDE = 'look_aside'
 
     class Effect(Enum):
         IMMOBILISED = 0
@@ -142,12 +149,13 @@ class PerkManager:
 
     def __init__(self):
         self.perks = [
-            (Perk.Name.DOUBLE_POINTS, None, 1/6),
-            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 1/6),
-            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 1/6),
-            (Perk.Name.ADDITIONAL_LIFE, None, 1/6),
-            (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 1/6),
-            (Perk.Name.DROP_MINE, None, 1/6)
+            (Perk.Name.DOUBLE_POINTS, None, 0/6),
+            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 0/6),
+            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 0/6),
+            (Perk.Name.ADDITIONAL_LIFE, None, 0/6),
+            (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 0/6),
+            (Perk.Name.DROP_MINE, None, 0/6),
+            (Perk.Name.LOOK_ASIDE, None, 7/7)
         ]
 
     def random_perk(self):
