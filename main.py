@@ -46,17 +46,7 @@ class MenuScreen(Screen):
         sm.current = "game"
 
     def add_players(self, id):
-        self.blue_player.background_down = 'images/tile_player_blue.png'
-        self.red_player.background_down = 'images/tile_player_red.png'
-        self.green_player.background_down = 'images/tile_player_green.png'
-        self.yellow_player.background_down = 'images/tile_player_yellow.png'
         self.nb_of_players = id
-
-        #for player in self.players[:2]:
-        #    player.state = 'down'
-
-        #for player in self.players[2:]:
-        #    player.state = 'normal'
 
         self.blue_player.state = 'down' if id > 0 else 'normal'
         self.red_player.state = 'down' if id > 1 else 'normal'

@@ -48,6 +48,8 @@
             pos_hint:{"x":0.11,"y":0.25}
             size_hint: 0.18, 0.1
             text: "Blue"
+            state: 'down'
+            background_down: 'images/tile_player_blue.png'
             on_release:
                 root.add_players(1)
 
@@ -56,6 +58,7 @@
             pos_hint:{"x":0.31,"y":0.25}
             size_hint: 0.18, 0.1
             text: "Red"
+            background_down: 'images/tile_player_red.png'
             on_release:
                 root.add_players(2)
 
@@ -64,6 +67,7 @@
             pos_hint:{"x":0.51,"y":0.25}
             size_hint: 0.18, 0.1
             text: "Green"
+            background_down: 'images/tile_player_green.png'
             on_release:
                 root.add_players(3)
 
@@ -72,6 +76,7 @@
             pos_hint:{"x":0.71,"y":0.25}
             size_hint: 0.18, 0.1
             text: "Yellow"
+            background_down: 'images/tile_player_yellow.png'
             on_release:
                 root.add_players(4)
 
