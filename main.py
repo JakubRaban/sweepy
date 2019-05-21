@@ -1,9 +1,9 @@
-from random import uniform
 
 from kivy.app import App
-from kivy.clock import Clock
+from kivy.config import Config
 from kivy.core.window import Window
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
 from kivy.uix.label import Label
@@ -85,7 +85,7 @@ class WholeWindow(BoxLayout):
         self.score_table = GridLayout(height=scoreboard_height, size_hint_y=None, rows=2, cols=5, spacing=[2, 2])
         self.score_table.add_widget(score_player_green)
         self.score_table.add_widget(perk_player_green)
-        self.score_table.add_widget(self.end)
+        self.score_table.add_widget(Button(text="Zakończ grę", background_normal='', background_color=[0, 0, 0, 0]))
         self.score_table.add_widget(perk_player_red)
         self.score_table.add_widget(score_player_red)
         self.score_table.add_widget(score_player_blue)
@@ -111,14 +111,7 @@ class WholeWindow(BoxLayout):
         if self._keyboard.widget:
             pass
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
-
-        Clock.schedule_once(lambda dt: self.perk_event(), uniform(20, 40))
-
-    def perk_event(self):
-        perked_cell = self.game.put_perk_on_board()
-        if perked_cell is not None:
-            self.game_grid.update_cell(perked_cell[0], perked_cell[1], self.game)
-        Clock.schedule_once(lambda dt: self.perk_event(), uniform(20, 40))
+        Config.set('graphics', 'resizable', False)
 
     def update_labels(self):
         for index in range(len(self.game.players)):
@@ -253,7 +246,7 @@ class TestJoystick(Widget):
 
 class SweepyApp(App):
     def build(self):
-        return WholeWindow(20, 25, 1)
+        return WholeWindow(20, 25, 2)
         #return TestJoystick()
 
 

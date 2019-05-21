@@ -23,6 +23,13 @@ class Game:
                 player = Player(rows - 1, columns - 1, PlayerColor.YELLOW)
             if player is not None:
                 self.players.append(player)
+        Clock.schedule_once(lambda dt: self.perk_event(), uniform(20, 40))
+
+    def perk_event(self):
+        perked_cell = self.put_perk_on_board()
+        if perked_cell is not None:
+            self.window.game_grid.update_cell(perked_cell[0], perked_cell[1], self)
+        Clock.schedule_once(lambda dt: self.perk_event(), uniform(20, 40))
 
     def get_all_players_coords(self):
         return [(player.row, player.column) for player in self.players]
@@ -77,6 +84,7 @@ class Game:
             for cell_position in affected_cells:
                 if not self.board.get_cell_with_tuple(cell_position).has_mine:
                     self.board.uncover_cell(cell_position[0], cell_position[1], player_id)
+            PerkManager.empty_perk.activate(player_id, self.players)
 
     def all_players_dead(self):
         return len([player.is_dead for player in self.players if not player.is_dead]) == 0
