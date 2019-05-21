@@ -68,8 +68,9 @@ class Game:
         current_player = self.players[player_id]
         player_position = current_player.get_position()
         if current_player.has_perk(Perk.Name.DROP_MINE):
-            self.board.get_cell_with_tuple(player_position).has_mine = True
-            self.board.remaining_mines += 1
+            if not self.board.get_cell_with_tuple(player_position).has_mine:
+                self.board.get_cell_with_tuple(player_position).has_mine = True
+                self.board.remaining_mines += 1
             PerkManager.empty_perk.activate(player_id, self.players)
         if current_player.has_perk(Perk.Name.LOOK_ASIDE):
             cells_around = self.board.get_adjacent_cells_coordinates(player_position[0], player_position[1])
