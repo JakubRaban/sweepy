@@ -51,10 +51,11 @@ class Game:
         current_player = self.players[player_id]
         player_position = current_player.get_position()
         uncover_outcome = self.board.uncover_cell(player_position[0], player_position[1], current_player)
-        if uncover_outcome == ActionOutcome.EXPLODED and not self.players[player_id].has_perk(Perk.Name.ADDITIONAL_LIFE):
-            current_player.is_dead = True
-        elif uncover_outcome == ActionOutcome.EXPLODED and self.players[player_id].has_perk(Perk.Name.ADDITIONAL_LIFE):
-            PerkManager.empty_perk.activate(player_id, self.players)
+        if uncover_outcome == ActionOutcome.EXPLODED:
+            if self.players[player_id].has_perk(Perk.Name.ADDITIONAL_LIFE):
+                PerkManager.empty_perk.activate(player_id, self.players)
+            else:
+                current_player.is_dead = True
 
     def flag_cell(self, player_id):
         current_player = self.players[player_id]
