@@ -2,6 +2,9 @@
 from kivy.app import App
 from kivy.config import Config
 from kivy.core.window import Window
+from kivy.lang import Builder
+from kivy.properties import ObjectProperty, StringProperty
+from kivy.uix.actionbar import ActionToggleButton
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
@@ -21,24 +24,44 @@ def get_screen_size():
     return int(screen_info_split[7]), int(screen_info_split[9][:-1])
 
 
+kv = Builder.load_file("layout.kv")
+
+
 class MenuScreen(Screen):
-    def __init__(self, **kw):
-        super().__init__(**kw)
+    board_width = ObjectProperty(None)
+    board_height = ObjectProperty(None)
 
+    blue_player = ObjectProperty(None)
+    red_player = ObjectProperty(None)
+    green_player = ObjectProperty(None)
+    yellow_player = ObjectProperty(None)
 
-class SummaryScreen(Screen):
-    pass
+    nb_of_players = 1
+
+    def play_btn(self):
+        sm.add_widget(GameScreen(name="game", board_height=int(self.board_height.text),
+                                  board_width=int(self.board_width.text),
+                                  players=self.nb_of_players))
+        sm.current = "game"
+
+    def add_players(self, id):
+        self.nb_of_players = id
+
+        self.blue_player.state = 'down' if id > 0 else 'normal'
+        self.red_player.state = 'down' if id > 1 else 'normal'
+        self.green_player.state = 'down' if id > 2 else 'normal'
+        self.yellow_player.state = 'down' if id > 3 else 'normal'
+
+    def reset(self):
+        self.board_width.text = ""
+        self.board_height.text = ""
 
 
 class GameScreen(Screen):
-    pass
-
-
-sm = ScreenManager()
-sm.add_widget(MenuScreen(name='menu'))
-sm.add_widget(GameScreen(name='game'))
-sm.add_widget(SummaryScreen(name='summary'))
-sm.transition = NoTransition()
+    def __init__(self, board_height, board_width, players, **kwargs):
+        super().__init__(**kwargs)
+        self.box_arrangement = WholeWindow(board_height, board_width, players)
+        self.add_widget(self.box_arrangement)
 
 
 class ScoreLabel(Label):
@@ -63,7 +86,7 @@ class WholeWindow(BoxLayout):
         self.game = Game(board_height, board_width, players)
         self.game.window = self
 
-        self.end = Label(text='Koniec', color=[0,0,0,0])
+        self.end = Label(text='Koniec', color=[0, 0, 0, 0])
         self.number_of_mines = Label(text=self.get_remaining_mines_text())
         score_player_blue = ScoreLabel(color=[63 / 255, 115 / 255, 232 / 255, 0])
         score_player_red = ScoreLabel(color=[203 / 255, 30 / 255, 30 / 255, 0])
@@ -125,7 +148,7 @@ class WholeWindow(BoxLayout):
             self.perk_indicators[index].source = filename
         self.number_of_mines.text = self.get_remaining_mines_text()
         if self.game.is_finished():
-            self.end.color = [1,0,0,0]
+            self.end.color = [1, 0, 0, 0]
 
     def get_remaining_mines_text(self):
         return "Miny: " + str(self.game.board.remaining_mines) + "/" + str(self.game.board.total_number_of_mines)
@@ -244,9 +267,20 @@ class TestJoystick(Widget):
         print('button', win, stickid, buttonid)
 
 
+class SummaryScreen(Screen):
+    pass
+
+
+sm = ScreenManager()
+sm.add_widget(MenuScreen(name="menu"))
+sm.transition = NoTransition()
+
+sm.current = "menu"
+
+
 class SweepyApp(App):
     def build(self):
-        return WholeWindow(20, 25, 2)
+        return sm
         #return TestJoystick()
 
 

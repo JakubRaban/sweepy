@@ -1,0 +1,90 @@
+<MenuScreen>:
+    name: "menu"
+
+    board_width: board_width
+    board_height: board_height
+
+    blue_player: blue_player
+    red_player: red_player
+    green_player: green_player
+    yellow_player: yellow_player
+
+    FloatLayout:
+
+        Label:
+            text:"Board width: "
+            font_size: (root.width**2 + root.height**2) / 13**4 + 10
+            pos_hint: {"x":0.22, "top":0.95}
+            size_hint: 0.3, 0.15
+
+        TextInput:
+            id: board_width
+            font_size: (root.width**2 + root.height**2) / 13**4 + 18
+            multiline: False
+            pos_hint: {"x": 0.6 , "top":0.95}
+            size_hint: 0.2, 0.15
+
+        Label:
+            text:"Board height: "
+            font_size: (root.width**2 + root.height**2) / 13**4 + 10
+            pos_hint: {"x":0.22, "top":0.77}
+            size_hint: 0.3, 0.15
+
+        TextInput:
+            id: board_height
+            font_size: (root.width**2 + root.height**2) / 13**4 + 18
+            multiline: False
+            pos_hint: {"x": 0.6, "top":0.77}
+            size_hint: 0.2, 0.15
+
+        Label:
+            text:"Players:"
+            font_size: (root.width**2 + root.height**2) / 13**4 + 10
+            pos_hint: {"x":0.25, "top":0.55}
+            size_hint: 0.5, 0.15
+
+        ActionToggleButton:
+            id: blue_player
+            pos_hint:{"x":0.11,"y":0.25}
+            size_hint: 0.18, 0.1
+            text: "Blue"
+            state: 'down'
+            background_down: 'images/tile_player_blue.png'
+            on_release:
+                root.add_players(1)
+
+        ActionToggleButton:
+            id: red_player
+            pos_hint:{"x":0.31,"y":0.25}
+            size_hint: 0.18, 0.1
+            text: "Red"
+            background_down: 'images/tile_player_red.png'
+            on_release:
+                root.add_players(2)
+
+        ActionToggleButton:
+            id: green_player
+            pos_hint:{"x":0.51,"y":0.25}
+            size_hint: 0.18, 0.1
+            text: "Green"
+            background_down: 'images/tile_player_green.png'
+            on_release:
+                root.add_players(3)
+
+        ActionToggleButton:
+            id: yellow_player
+            pos_hint:{"x":0.71,"y":0.25}
+            size_hint: 0.18, 0.1
+            text: "Yellow"
+            background_down: 'images/tile_player_yellow.png'
+            on_release:
+                root.add_players(4)
+
+        Button:
+            pos_hint:{"x":0.22,"y":0.05}
+            size_hint: 0.56, 0.15
+            font_size: (root.width**2 + root.height**2) / 13**4
+            text: "Play"
+            on_release:
+                root.manager.transition.direction = "up"
+                root.play_btn()
