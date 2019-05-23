@@ -249,6 +249,8 @@ class GameBoard(GridLayout):
                 filename += "_flag"
                 if our_cell.has_mine:
                     filename += "_ok"
+                    if not our_cell.has_mine_from_start:
+                        filename += "_caution"
                 else:
                     filename += "_bad"
             for player in game.players:

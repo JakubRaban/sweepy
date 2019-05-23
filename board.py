@@ -105,6 +105,7 @@ class Cell:
         self.row = row
         self.column = column
         self.has_mine = False
+        self.has_mine_from_start = True
         self.mines_around = 0
         self.is_uncovered = False
         self.flagging_player = None
