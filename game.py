@@ -39,13 +39,17 @@ class Game:
 
     def move_player(self, player_id, move_direction):
         moving_player = self.players[player_id]
-        coords = self.board.get_cell_towards(moving_player.row, moving_player.column, move_direction)
-        if self.can_move_to(coords[0], coords[1]) and not self.players[player_id].is_dead and not self.players[player_id].has_effect(Perk.Effect.IMMOBILISED):
+        coords = self.board.get_cell_towards(moving_player.row, moving_player.column, move_direction,
+                                             inversed_direction=self.players[player_id].has_effect(Perk.Effect.INVERSE_CONTROL))
+        if self.can_move_to(coords[0], coords[1]) and self.able_to_move(player_id):
             self.players[player_id].set_new_position(coords)
             new_perk = self.board.cells[coords].perk
             if new_perk is not None:
                 self.collect_perk(new_perk, player_id)
                 self.board.cells[coords].perk = None
+
+    def able_to_move(self, player_id):
+        return not self.players[player_id].is_dead and not self.players[player_id].has_effect(Perk.Effect.IMMOBILISED)
 
     def uncover_cell(self, player_id):
         current_player = self.players[player_id]
@@ -146,6 +150,7 @@ class Perk:
         ADDITIONAL_LIFE = 'additional_life'
         KILL_ENEMIES_ON_BAD_FLAG = 'kill_on_bad_flag'
         LOOK_ASIDE = 'look_aside'
+        INVERSE_CONTROL_FOR_ENEMIES = 'inverse_control'
 
     class Effect(Enum):
         IMMOBILISED = 0
@@ -159,13 +164,14 @@ class PerkManager:
 
     def __init__(self):
         self.perks = [
-            (Perk.Name.DOUBLE_POINTS, None, 1/7),
-            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 1/7),
-            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 1/7),
-            (Perk.Name.ADDITIONAL_LIFE, None, 1/7),
-            (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 1/7),
-            (Perk.Name.DROP_MINE, None, 1/7),
-            (Perk.Name.LOOK_ASIDE, None, 1/7)
+            (Perk.Name.DOUBLE_POINTS, None, 1/8),
+            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 1/8),
+            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 1/8),
+            (Perk.Name.ADDITIONAL_LIFE, None, 1/8),
+            (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 1/8),
+            (Perk.Name.DROP_MINE, None, 1/8),
+            (Perk.Name.LOOK_ASIDE, None, 1/8),
+            (Perk.Name.INVERSE_CONTROL_FOR_ENEMIES, Perk.Effect.INVERSE_CONTROL, 1/8)
         ]
 
     def random_perk(self):
