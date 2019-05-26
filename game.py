@@ -68,7 +68,7 @@ class Game:
         if flagging_outcome == ActionOutcome.FLAG_CORRECT:
             points_to_add = 1
             if self.players[player_id].has_perk(Perk.Name.DOUBLE_POINTS):
-                points_to_add += 1
+                points_to_add = 2
             current_player.add_points(points_to_add)
         elif flagging_outcome == ActionOutcome.FLAG_INCORRECT:
             if not current_player.has_effect(Perk.Effect.KILL_ON_BAD_FLAG):
