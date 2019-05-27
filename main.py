@@ -47,19 +47,29 @@ class ParametersScreen(Screen):
         self.yellow_player.disabled = if_single
 
     def play_btn(self):
-        max_value = max(int(self.board_width.text), int(self.board_height.text))
-        min_value = min(int(self.board_width.text), int(self.board_height.text))
-        if min_value >= 5 and max_value <= 30:
-            sm.add_widget(GameScreen(name="game", board_height=int(self.board_height.text),
-                                    board_width=int(self.board_width.text),
-                                    players=self.nb_of_players))
-            sm.current = "game"
-        else:
-            self.invalid_form()
+        try:
+            max_value = max(int(self.board_width.text), int(self.board_height.text))
+            min_value = min(int(self.board_width.text), int(self.board_height.text))
+            if min_value >= 5 and max_value <= 30:
+                sm.add_widget(GameScreen(name="game", board_height=int(self.board_height.text),
+                                        board_width=int(self.board_width.text),
+                                        players=self.nb_of_players))
+                sm.current = "game"
+            else:
+                self.invalid_form()
+        except ValueError:
+            self.not_a_number_form()
 
     def invalid_form(self):
         pop = Popup(title='Invalid board size values!',
                     content=Label(text='Please type board dimensions with values between 5 and 30.'),
+                    size_hint=(None, None), size=(600, 100))
+
+        pop.open()
+
+    def not_a_number_form(self):
+        pop = Popup(title='Invalid board size values!',
+                    content=Label(text='Please give integers!'),
                     size_hint=(None, None), size=(600, 100))
 
         pop.open()
@@ -116,7 +126,7 @@ class PerkImage(Image):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.source = 'images/tile.png'
-        self.size_hint_x = 0.1
+        self.size_hint_x = 0.2
 
 
 class WholeWindow(BoxLayout):
