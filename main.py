@@ -11,6 +11,7 @@ from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
 from kivy.uix.label import Label
+from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.uix.widget import Widget
 
@@ -29,25 +30,42 @@ kv = Builder.load_file("layout.kv")
 
 
 class MenuScreen(Screen):
-    board_width = ObjectProperty(None)
-    board_height = ObjectProperty(None)
+    def play_btn(self, if_single):
+        sm.add_widget(ParametersScreen(if_single))
+        sm.current = "parameters"
 
-    blue_player = ObjectProperty(None)
-    red_player = ObjectProperty(None)
-    green_player = ObjectProperty(None)
-    yellow_player = ObjectProperty(None)
+
+class ParametersScreen(Screen):
 
     nb_of_players = 1
 
+    def __init__(self, if_single, **kwargs):
+        super().__init__(**kwargs)
+        self.blue_player.disabled = if_single
+        self.red_player.disabled = if_single
+        self.green_player.disabled = if_single
+        self.yellow_player.disabled = if_single
+
     def play_btn(self):
-        sm.add_widget(GameScreen(name="game", board_height=int(self.board_height.text),
-                                  board_width=int(self.board_width.text),
-                                  players=self.nb_of_players))
-        sm.current = "game"
+        max_value = max(int(self.board_width.text), int(self.board_height.text))
+        min_value = min(int(self.board_width.text), int(self.board_height.text))
+        if min_value >= 5 and max_value <= 30:
+            sm.add_widget(GameScreen(name="game", board_height=int(self.board_height.text),
+                                    board_width=int(self.board_width.text),
+                                    players=self.nb_of_players))
+            sm.current = "game"
+        else:
+            self.invalid_form()
+
+    def invalid_form(self):
+        pop = Popup(title='Invalid board size values!',
+                    content=Label(text='Please type board dimensions with values between 5 and 30.'),
+                    size_hint=(None, None), size=(600, 100))
+
+        pop.open()
 
     def add_players(self, id):
         self.nb_of_players = id
-
         self.blue_player.state = 'down' if id > 0 else 'normal'
         self.red_player.state = 'down' if id > 1 else 'normal'
         self.green_player.state = 'down' if id > 2 else 'normal'
@@ -62,7 +80,27 @@ class GameScreen(Screen):
     def __init__(self, board_height, board_width, players, **kwargs):
         super().__init__(**kwargs)
         self.box_arrangement = WholeWindow(board_height, board_width, players)
+        self.box_arrangement.parent_window = self
         self.add_widget(self.box_arrangement)
+        self.game_result = None
+
+    def finish(self, result):
+        sm.add_widget(SummaryScreen(result))
+        sm.current = "summary"
+
+
+class SummaryScreen(Screen):
+    def __init__(self, game_result, **kwargs):
+        super().__init__(**kwargs)
+        self.blue_player_score.text += game_result[0][0].text
+        self.red_player_score.text += game_result[0][1].text
+        self.green_player_score.text += game_result[0][2].text
+        self.yellow_player_score.text += game_result[0][3].text
+
+        if game_result[1] > 0:
+            self.game_over.text = "All of the minesweepers are dead!"
+        else:
+            self.game_over.text = "The area is clear!"
 
 
 class ScoreLabel(Label):
@@ -112,6 +150,7 @@ class WholeWindow(BoxLayout):
         self.score_table.add_widget(self.end)
         self.score_table.add_widget(perk_player_red)
         self.score_table.add_widget(score_player_red)
+
         self.score_table.add_widget(score_player_blue)
         self.score_table.add_widget(perk_player_blue)
         self.score_table.add_widget(self.number_of_mines)
@@ -157,6 +196,8 @@ class WholeWindow(BoxLayout):
         self.number_of_mines.text = self.get_remaining_mines_text()
         if self.game.is_finished():
             self.end.color = [1, 0, 0, 0]
+            final_result = self.score_labels, self.game.board.remaining_mines
+            Clock.schedule_once(lambda dt: self.parent.finish(final_result), 1)
 
     def get_remaining_mines_text(self):
         return "Miny: " + str(self.game.board.remaining_mines) + "/" + str(self.game.board.total_number_of_mines)
@@ -273,10 +314,6 @@ class TestJoystick(Widget):
 
     def on_joy_button_down(self, win, stickid, buttonid):
         print('button', win, stickid, buttonid)
-
-
-class SummaryScreen(Screen):
-    pass
 
 
 sm = ScreenManager()

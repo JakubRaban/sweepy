@@ -1,6 +1,36 @@
 <MenuScreen>:
     name: "menu"
 
+    FloatLayout:
+
+        Label:
+            pos_hint:{"x":0.22,"y":0.8}
+            size_hint: 0.56, 0.15
+            font_size: (root.width**2 + root.height**2) / 13**4
+            text: "Mind sweeper"
+
+        Button:
+            pos_hint:{"x":0.22,"y":0.6}
+            size_hint: 0.56, 0.15
+            font_size: (root.width**2 + root.height**2) / 13**4
+            text: "Singleplayer"
+            on_release:
+                root.manager.transition.direction = "up"
+                root.play_btn(True)
+
+        Button:
+            pos_hint:{"x":0.22,"y":0.4}
+            size_hint: 0.56, 0.15
+            font_size: (root.width**2 + root.height**2) / 13**4
+            text: "Multiplayer"
+            on_release:
+                root.manager.transition.direction = "up"
+                root.play_btn(False)
+
+
+<ParametersScreen>:
+    name: "parameters"
+
     board_width: board_width
     board_height: board_height
 
@@ -19,6 +49,7 @@
 
         TextInput:
             id: board_width
+            text: '20'
             font_size: (root.width**2 + root.height**2) / 13**4 + 18
             multiline: False
             pos_hint: {"x": 0.6 , "top":0.95}
@@ -32,6 +63,7 @@
 
         TextInput:
             id: board_height
+            text: '20'
             font_size: (root.width**2 + root.height**2) / 13**4 + 18
             multiline: False
             pos_hint: {"x": 0.6, "top":0.77}
@@ -88,3 +120,54 @@
             on_release:
                 root.manager.transition.direction = "up"
                 root.play_btn()
+
+<SummaryScreen>:
+    name: "summary"
+
+    game_over: game_over
+
+    blue_player_score: blue_player_score
+    red_player_score: red_player_score
+    green_player_score: green_player_score
+    yellow_player_score: yellow_player_score
+
+    FloatLayout:
+
+        Label:
+            id: game_over
+            text: ''
+            font_size: (root.width**2 + root.height**2) / 13**4 + 10
+            pos_hint: {"x":0.35, "top":1}
+            size_hint: 0.3, 0.15
+
+        Label:
+            id: blue_player_score
+            text: 'Blue player score: '
+            color: 63 / 255, 115 / 255, 232 / 255, 0
+            font_size: (root.width**2 + root.height**2) / 13**4 + 10
+            pos_hint: {"x":0.35, "top":0.8}
+            size_hint: 0.3, 0.15
+
+        Label:
+            id: red_player_score
+            text: 'Red player score: '
+            color: 203 / 255, 30 / 255, 30 / 255, 0
+            font_size: (root.width**2 + root.height**2) / 13**4 + 10
+            pos_hint: {"x":0.35, "top":0.7}
+            size_hint: 0.3, 0.15
+
+        Label:
+            id: green_player_score
+            text: 'Green player score: '
+            color: 53 / 255, 219 / 255, 35 / 255, 0
+            font_size: (root.width**2 + root.height**2) / 13**4 + 10
+            pos_hint: {"x":0.35, "top":0.6}
+            size_hint: 0.3, 0.15
+
+        Label:
+            id: yellow_player_score
+            text: 'Yellow player score: '
+            color: 255 / 255, 186 / 255, 0, 0
+            font_size: (root.width**2 + root.height**2) / 13**4 + 10
+            pos_hint: {"x":0.35, "top":0.5}
+            size_hint: 0.3, 0.15
