@@ -7,7 +7,7 @@
             pos_hint:{"x":0.22,"y":0.8}
             size_hint: 0.56, 0.15
             font_size: (root.width**2 + root.height**2) / 13**4
-            text: "Mind sweeper"
+            text: "Minesweeper"
 
         Button:
             pos_hint:{"x":0.22,"y":0.6}
@@ -171,3 +171,12 @@
             font_size: (root.width**2 + root.height**2) / 13**4 + 10
             pos_hint: {"x":0.35, "top":0.5}
             size_hint: 0.3, 0.15
+
+        Button:
+            pos_hint:{"x":0.22,"y":0.05}
+            size_hint: 0.56, 0.15
+            font_size: (root.width**2 + root.height**2) / 13**4
+            text: "Play again"
+            on_release:
+                root.manager.transition.direction = "up"
+                root.play_btn()

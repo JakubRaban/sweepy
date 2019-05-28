@@ -1,5 +1,6 @@
 
 from kivy.app import App
+from kivy.clock import Clock
 from kivy.config import Config
 from kivy.core.window import Window
 from kivy.lang import Builder
@@ -110,6 +111,9 @@ class SummaryScreen(Screen):
             self.game_over.text = "All of the minesweepers are dead!"
         else:
             self.game_over.text = "The area is clear!"
+
+    def play_btn(self):
+        sm.current = "menu"
 
 
 class ScoreLabel(Label):
