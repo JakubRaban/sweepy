@@ -122,7 +122,7 @@ class ScoreLabel(Label):
         self.font_size = 24
         self.bold = True
         self.text = '0'
-        self.size_hint_x = 0.1
+        self.size_hint_x = 0.2
 
 
 class PerkImage(Image):
@@ -203,7 +203,7 @@ class WholeWindow(BoxLayout):
         if self.game.is_finished():
             self.end.color = [1, 0, 0, 0]
             final_result = self.score_labels, self.game.board.remaining_mines
-            Clock.schedule_once(lambda dt: self.parent.finish(final_result), 1)
+            Clock.schedule_once(lambda dt: self.parent.finish(final_result), 2)
 
     def get_remaining_mines_text(self):
         return "Miny: " + str(self.game.board.remaining_mines) + "/" + str(self.game.board.total_number_of_mines)
@@ -258,7 +258,22 @@ class WholeWindow(BoxLayout):
         elif keycode[1] == 'numpadsubstract':
             self.game.drop_item(2)
 
-        if keycode[1] in ['.', 'g', ',', 'f', '/', 'v', 'numpadmul', 'numpadsubstract']:
+        if keycode[1] == 'j':
+            self.game.move_player(3, MoveDirection.LEFT)
+        elif keycode[1] == 'l':
+            self.game.move_player(3, MoveDirection.RIGHT)
+        elif keycode[1] == 'k':
+            self.game.move_player(3, MoveDirection.DOWN)
+        elif keycode[1] == 'i':
+            self.game.move_player(3, MoveDirection.UP)
+        elif keycode[1] == '[':
+            self.game.uncover_cell(3)
+        elif keycode[1] == ']':
+            self.game.flag_cell(3)
+        elif keycode[1] == '\\':
+            self.game.drop_item(3)
+
+        if keycode[1] in ['.', 'g', ',', 'f', '/', 'v', 'numpadmul', 'numpadsubstract', ']', '\\']:
             self.update_labels()
 
         for i in range(self.game_grid.rows):

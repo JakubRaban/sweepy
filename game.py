@@ -72,7 +72,7 @@ class Game:
             current_player.add_points(points_to_add)
         elif flagging_outcome == ActionOutcome.FLAG_INCORRECT:
             if not current_player.has_effect(Perk.Effect.KILL_ON_BAD_FLAG):
-                current_player.add_points(-5)
+                current_player.add_points(-3)
             else:
                 current_player.is_dead = True
 
