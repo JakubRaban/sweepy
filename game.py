@@ -153,6 +153,7 @@ class Perk:
         KILL_ENEMIES_ON_BAD_FLAG = 'kill_on_bad_flag'
         LOOK_ASIDE = 'look_aside'
         INVERSE_CONTROL_FOR_ENEMIES = 'inverse_control'
+        DYDUCH = 'dyduch'
 
     class Effect(Enum):
         IMMOBILISED = 0
@@ -173,7 +174,8 @@ class PerkManager:
             (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 1/8),
             (Perk.Name.DROP_MINE, None, 1/8),
             (Perk.Name.LOOK_ASIDE, None, 1/8),
-            (Perk.Name.INVERSE_CONTROL_FOR_ENEMIES, Perk.Effect.INVERSE_CONTROL, 1/8)
+            (Perk.Name.INVERSE_CONTROL_FOR_ENEMIES, Perk.Effect.INVERSE_CONTROL, 1/8),
+            (Perk.Name.DYDUCH, None, 0)
         ]
 
     def random_perk(self):

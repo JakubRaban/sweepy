@@ -19,6 +19,8 @@ from board import MoveDirection
 from game import Game, Perk
 import os
 
+kv = Builder.load_file("layout.kv")
+
 
 def get_screen_size():
     screen_info = os.popen("xrandr -q -d :0").readlines()[0]
@@ -26,13 +28,11 @@ def get_screen_size():
     return int(screen_info_split[7]), int(screen_info_split[9][:-1])
 
 
-kv = Builder.load_file("layout.kv")
-
-
 class MenuScreen(Screen):
     def play_btn(self, if_single):
-        sm.add_widget(ParametersScreen(if_single))
-        sm.current = "parameters"
+        sm.switch_to(ParametersScreen(if_single))
+        #sm.add_widget(ParametersScreen(if_single))
+        #sm.current = "parameters"
 
 
 class ParametersScreen(Screen):
@@ -51,10 +51,13 @@ class ParametersScreen(Screen):
             max_value = max(int(self.board_width.text), int(self.board_height.text))
             min_value = min(int(self.board_width.text), int(self.board_height.text))
             if min_value >= 5 and max_value <= 30:
-                sm.add_widget(GameScreen(name="game", board_height=int(self.board_height.text),
+                sm.switch_to(GameScreen(name="game", board_height=int(self.board_height.text),
                                         board_width=int(self.board_width.text),
                                         players=self.nb_of_players))
-                sm.current = "game"
+                #sm.add_widget(GameScreen(name="game", board_height=int(self.board_height.text),
+                #                        board_width=int(self.board_width.text),
+                #                        players=self.nb_of_players))
+                #sm.current = "game"
             else:
                 self.invalid_form()
         except ValueError:
@@ -95,8 +98,10 @@ class GameScreen(Screen):
         self.game_result = None
 
     def finish(self, result):
-        sm.add_widget(SummaryScreen(result))
-        sm.current = "summary"
+        Window.size = (800, 800)
+        sm.switch_to(SummaryScreen(result))
+        #sm.add_widget(SummaryScreen(result))
+        #sm.current = "summary"
 
 
 class SummaryScreen(Screen):
@@ -107,13 +112,15 @@ class SummaryScreen(Screen):
         self.green_player_score.text += game_result[0][2].text
         self.yellow_player_score.text += game_result[0][3].text
 
-        if game_result[1] > 0:
-            self.game_over.text = "All of the minesweepers are dead!"
-        else:
+        if game_result[1].all_players_dead():
+            self.game_over.text = "All players are dead!"
+        elif game_result[1].board.remaining_mines == 0:
             self.game_over.text = "The area is clear!"
+        else:
+            self.game_over.text = "Game finished"
 
     def play_btn(self):
-        sm.current = "menu"
+        sm.switch_to(MenuScreen(name="menu"))
 
 
 class ScoreLabel(Label):
@@ -160,7 +167,8 @@ class WholeWindow(BoxLayout):
         self.score_table = GridLayout(height=scoreboard_height, size_hint_y=None, rows=2, cols=5, spacing=[2, 2])
         self.score_table.add_widget(score_player_green)
         self.score_table.add_widget(perk_player_green)
-        self.score_table.add_widget(Button(text="Zakończ grę", background_normal='', background_color=[0, 0, 0, 0]))
+        self.score_table.add_widget(Button(text="Finish the game", background_normal='', background_color=[0, 0, 0, 0],
+                                           on_press=self.endgame_button_press))
         self.score_table.add_widget(perk_player_red)
         self.score_table.add_widget(score_player_red)
 
@@ -189,6 +197,9 @@ class WholeWindow(BoxLayout):
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
         Config.set('graphics', 'resizable', False)
 
+    def endgame_button_press(self, _):
+        self.parent.finish((self.score_labels, self.game))
+
     def update_labels(self):
         for index in range(len(self.game.players)):
             self.score_labels[index].text = str(self.game.players[index].score)
@@ -202,86 +213,86 @@ class WholeWindow(BoxLayout):
         self.number_of_mines.text = self.get_remaining_mines_text()
         if self.game.is_finished():
             self.end.color = [1, 0, 0, 0]
-            final_result = self.score_labels, self.game.board.remaining_mines
+            final_result = self.score_labels, self.game
             Clock.schedule_once(lambda dt: self.parent.finish(final_result), 2)
 
     def get_remaining_mines_text(self):
-        return "Miny: " + str(self.game.board.remaining_mines) + "/" + str(self.game.board.total_number_of_mines)
+        return "Mines remaining: " + str(self.game.board.remaining_mines) + "/" + str(self.game.board.total_number_of_mines)
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_keyboard_down)
         self._keyboard = None
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
-        if keycode[1] == 'left':
-            self.game.move_player(0, MoveDirection.LEFT)
-        elif keycode[1] == 'right':
-            self.game.move_player(0, MoveDirection.RIGHT)
-        elif keycode[1] == 'down':
-            self.game.move_player(0, MoveDirection.DOWN)
-        elif keycode[1] == 'up':
-            self.game.move_player(0, MoveDirection.UP)
-        elif keycode[1] == ',':
-            self.game.uncover_cell(0)
-        elif keycode[1] == '.':
-            self.game.flag_cell(0)
-        elif keycode[1] == '/':
-            self.game.drop_item(0)
+        try:
+            if keycode[1] == 'left':
+                self.game.move_player(0, MoveDirection.LEFT)
+            elif keycode[1] == 'right':
+                self.game.move_player(0, MoveDirection.RIGHT)
+            elif keycode[1] == 'down':
+                self.game.move_player(0, MoveDirection.DOWN)
+            elif keycode[1] == 'up':
+                self.game.move_player(0, MoveDirection.UP)
+            elif keycode[1] == ',':
+                self.game.uncover_cell(0)
+            elif keycode[1] == '.':
+                self.game.flag_cell(0)
+            elif keycode[1] == '/':
+                self.game.drop_item(0)
 
-        if keycode[1] == 'a':
-            self.game.move_player(1, MoveDirection.LEFT)
-        elif keycode[1] == 'd':
-            self.game.move_player(1, MoveDirection.RIGHT)
-        elif keycode[1] == 's':
-            self.game.move_player(1, MoveDirection.DOWN)
-        elif keycode[1] == 'w':
-            self.game.move_player(1, MoveDirection.UP)
-        elif keycode[1] == 'f':
-            self.game.uncover_cell(1)
-        elif keycode[1] == 'g':
-            self.game.flag_cell(1)
-        elif keycode[1] == 'v':
-            self.game.drop_item(1)
+            if keycode[1] == 'a':
+                self.game.move_player(1, MoveDirection.LEFT)
+            elif keycode[1] == 'd':
+                self.game.move_player(1, MoveDirection.RIGHT)
+            elif keycode[1] == 's':
+                self.game.move_player(1, MoveDirection.DOWN)
+            elif keycode[1] == 'w':
+                self.game.move_player(1, MoveDirection.UP)
+            elif keycode[1] == 'f':
+                self.game.uncover_cell(1)
+            elif keycode[1] == 'g':
+                self.game.flag_cell(1)
+            elif keycode[1] == 'v':
+                self.game.drop_item(1)
 
-        if keycode[1] == 'numpad4':
-            self.game.move_player(2, MoveDirection.LEFT)
-        elif keycode[1] == 'numpad6':
-            self.game.move_player(2, MoveDirection.RIGHT)
-        elif keycode[1] == 'numpad5':
-            self.game.move_player(2, MoveDirection.DOWN)
-        elif keycode[1] == 'numpad8':
-            self.game.move_player(2, MoveDirection.UP)
-        elif keycode[1] == 'numpaddivide':
-            self.game.uncover_cell(2)
-        elif keycode[1] == 'numpadmul':
-            self.game.flag_cell(2)
-        elif keycode[1] == 'numpadsubstract':
-            self.game.drop_item(2)
+            if keycode[1] == 'numpad4':
+                self.game.move_player(2, MoveDirection.LEFT)
+            elif keycode[1] == 'numpad6':
+                self.game.move_player(2, MoveDirection.RIGHT)
+            elif keycode[1] == 'numpad5':
+                self.game.move_player(2, MoveDirection.DOWN)
+            elif keycode[1] == 'numpad8':
+                self.game.move_player(2, MoveDirection.UP)
+            elif keycode[1] == 'numpaddivide':
+                self.game.uncover_cell(2)
+            elif keycode[1] == 'numpadmul':
+                self.game.flag_cell(2)
+            elif keycode[1] == 'numpadsubstract':
+                self.game.drop_item(2)
 
-        if keycode[1] == 'j':
-            self.game.move_player(3, MoveDirection.LEFT)
-        elif keycode[1] == 'l':
-            self.game.move_player(3, MoveDirection.RIGHT)
-        elif keycode[1] == 'k':
-            self.game.move_player(3, MoveDirection.DOWN)
-        elif keycode[1] == 'i':
-            self.game.move_player(3, MoveDirection.UP)
-        elif keycode[1] == '[':
-            self.game.uncover_cell(3)
-        elif keycode[1] == ']':
-            self.game.flag_cell(3)
-        elif keycode[1] == '\\':
-            self.game.drop_item(3)
+            if keycode[1] == 'j':
+                self.game.move_player(3, MoveDirection.LEFT)
+            elif keycode[1] == 'l':
+                self.game.move_player(3, MoveDirection.RIGHT)
+            elif keycode[1] == 'k':
+                self.game.move_player(3, MoveDirection.DOWN)
+            elif keycode[1] == 'i':
+                self.game.move_player(3, MoveDirection.UP)
+            elif keycode[1] == '[':
+                self.game.uncover_cell(3)
+            elif keycode[1] == ']':
+                self.game.flag_cell(3)
+            elif keycode[1] == '\\':
+                self.game.drop_item(3)
 
-        if keycode[1] in ['.', 'g', ',', 'f', '/', 'v', 'numpadmul', 'numpadsubstract', ']', '\\']:
             self.update_labels()
 
-        for i in range(self.game_grid.rows):
-            for j in range(self.game_grid.cols):
-                self.game_grid.update_cell(i, j, self.game)
+            for i in range(self.game_grid.rows):
+                for j in range(self.game_grid.cols):
+                    self.game_grid.update_cell(i, j, self.game)
+        except IndexError:
+            pass
 
-        if keycode[1] == 'escape':
-            keyboard.release()
         return True
 
 
