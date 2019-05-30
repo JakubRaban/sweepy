@@ -23,13 +23,7 @@ class Game:
                 player = Player(rows - 1, columns - 1, PlayerColor.YELLOW)
             if player is not None:
                 self.players.append(player)
-        Clock.schedule_once(lambda dt: self.perk_event(), uniform(20, 40))
-
-    def perk_event(self):
-        perked_cell = self.put_perk_on_board()
-        if perked_cell is not None:
-            self.window.game_grid.update_cell(perked_cell[0], perked_cell[1], self)
-        Clock.schedule_once(lambda dt: self.perk_event(), uniform(20, 40))
+        Clock.schedule_once(lambda dt: self.perk_event(), self.get_perking_time())
 
     def get_all_players_coords(self):
         return [(player.row, player.column) for player in self.players]
@@ -99,6 +93,12 @@ class Game:
 
     def is_finished(self):
         return self.board.remaining_mines == 0 or self.all_players_dead()
+    
+    def perk_event(self):
+        perked_cell = self.put_perk_on_board()
+        if perked_cell is not None:
+            self.window.game_grid.update_cell(perked_cell[0], perked_cell[1], self)
+        Clock.schedule_once(lambda dt: self.perk_event(), self.get_perking_time())
 
     def put_perk_on_board(self):
         possible_cells = self.board.get_perkable_cells(self.players)
@@ -115,6 +115,9 @@ class Game:
         perk.clock_event = Clock.schedule_once(lambda dt: perk.cancel(player_id, self.players), perk_lasting_time)
         Clock.schedule_once(lambda dt: self.window.update_labels(), perk_lasting_time)
         self.window.update_labels()
+        
+    def get_perking_time(self):
+        return uniform(20, 40)
 
 
 class Perk:
@@ -125,14 +128,11 @@ class Perk:
 
     def activate(self, player_id, players):
         current_perk = players[player_id].perk
-        if current_perk is not None and current_perk.clock_event is not None:
-            current_perk.clock_event.cancel()
         if current_perk is not None:
             current_perk.cancel(player_id, players)
-        if self.name is not None:
-            players[player_id].perk = self
-        else:
-            players[player_id].perk = None
+            if current_perk.clock_event is not None:
+                current_perk.clock_event.cancel()
+        players[player_id].perk = self if self.name is not None else None
         for i, p in enumerate(players):
             if i != player_id:
                 p.effects.append(self.effect_on_others)
