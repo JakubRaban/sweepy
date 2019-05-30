@@ -325,7 +325,7 @@ class GameBoard(GridLayout):
                 filename += "_mine"
             else:
                 filename += ("_" + str(our_cell.mines_around))
-        if filename.find("mine") == -1:
+        if "mine" not in filename:
             if our_cell.flagging_player is not None and not our_cell.is_uncovered:
                 filename += "_flag"
                 if our_cell.has_mine:
