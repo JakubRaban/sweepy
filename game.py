@@ -23,6 +23,13 @@ class Game:
                 player = Player(rows - 1, columns - 1, PlayerColor.YELLOW)
             if player is not None:
                 self.players.append(player)
+        Clock.schedule_once(lambda dt: self.perk_event(), uniform(20, 40))
+
+    def perk_event(self):
+        perked_cell = self.put_perk_on_board()
+        if perked_cell is not None:
+            self.window.game_grid.update_cell(perked_cell[0], perked_cell[1], self)
+        Clock.schedule_once(lambda dt: self.perk_event(), uniform(20, 40))
 
     def get_all_players_coords(self):
         return [(player.row, player.column) for player in self.players]
@@ -32,22 +39,27 @@ class Game:
 
     def move_player(self, player_id, move_direction):
         moving_player = self.players[player_id]
-        coords = self.board.get_cell_towards(moving_player.row, moving_player.column, move_direction)
-        if self.can_move_to(coords[0], coords[1]) and not self.players[player_id].is_dead and not self.players[player_id].has_effect(Perk.Effect.IMMOBILISED):
+        coords = self.board.get_cell_towards(moving_player.row, moving_player.column, move_direction,
+                                             inversed_direction=self.players[player_id].has_effect(Perk.Effect.INVERSE_CONTROL))
+        if self.can_move_to(coords[0], coords[1]) and self.able_to_move(player_id):
             self.players[player_id].set_new_position(coords)
             new_perk = self.board.cells[coords].perk
             if new_perk is not None:
                 self.collect_perk(new_perk, player_id)
                 self.board.cells[coords].perk = None
 
+    def able_to_move(self, player_id):
+        return not self.players[player_id].is_dead and not self.players[player_id].has_effect(Perk.Effect.IMMOBILISED)
+
     def uncover_cell(self, player_id):
         current_player = self.players[player_id]
         player_position = current_player.get_position()
         uncover_outcome = self.board.uncover_cell(player_position[0], player_position[1], current_player)
-        if uncover_outcome == ActionOutcome.EXPLODED and not self.players[player_id].has_perk(Perk.Name.ADDITIONAL_LIFE):
-            current_player.is_dead = True
-        elif uncover_outcome == ActionOutcome.EXPLODED and self.players[player_id].has_perk(Perk.Name.ADDITIONAL_LIFE):
-            PerkManager.empty_perk.activate(player_id, self.players)
+        if uncover_outcome == ActionOutcome.EXPLODED:
+            if self.players[player_id].has_perk(Perk.Name.ADDITIONAL_LIFE):
+                PerkManager.empty_perk.activate(player_id, self.players)
+            else:
+                current_player.is_dead = True
 
     def flag_cell(self, player_id):
         current_player = self.players[player_id]
@@ -56,7 +68,7 @@ class Game:
         if flagging_outcome == ActionOutcome.FLAG_CORRECT:
             points_to_add = 1
             if self.players[player_id].has_perk(Perk.Name.DOUBLE_POINTS):
-                points_to_add += 1
+                points_to_add = 2
             current_player.add_points(points_to_add)
         elif flagging_outcome == ActionOutcome.FLAG_INCORRECT:
             if not current_player.has_effect(Perk.Effect.KILL_ON_BAD_FLAG):
@@ -68,8 +80,10 @@ class Game:
         current_player = self.players[player_id]
         player_position = current_player.get_position()
         if current_player.has_perk(Perk.Name.DROP_MINE):
-            if not self.board.get_cell_with_tuple(player_position).has_mine:
-                self.board.get_cell_with_tuple(player_position).has_mine = True
+            cell_at_position = self.board.get_cell_with_tuple(player_position)
+            if not cell_at_position.has_mine:
+                cell_at_position.has_mine = True
+                cell_at_position.has_mine_from_start = False
                 self.board.remaining_mines += 1
             PerkManager.empty_perk.activate(player_id, self.players)
         if current_player.has_perk(Perk.Name.LOOK_ASIDE):
@@ -78,6 +92,7 @@ class Game:
             for cell_position in affected_cells:
                 if not self.board.get_cell_with_tuple(cell_position).has_mine:
                     self.board.uncover_cell(cell_position[0], cell_position[1], player_id)
+            PerkManager.empty_perk.activate(player_id, self.players)
 
     def all_players_dead(self):
         return len([player.is_dead for player in self.players if not player.is_dead]) == 0
@@ -137,6 +152,7 @@ class Perk:
         ADDITIONAL_LIFE = 'additional_life'
         KILL_ENEMIES_ON_BAD_FLAG = 'kill_on_bad_flag'
         LOOK_ASIDE = 'look_aside'
+        INVERSE_CONTROL_FOR_ENEMIES = 'inverse_control'
 
     class Effect(Enum):
         IMMOBILISED = 0
@@ -150,13 +166,14 @@ class PerkManager:
 
     def __init__(self):
         self.perks = [
-            (Perk.Name.DOUBLE_POINTS, None, 1/7),
-            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 1/7),
-            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 1/7),
-            (Perk.Name.ADDITIONAL_LIFE, None, 1/7),
-            (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 1/7),
-            (Perk.Name.DROP_MINE, None, 1/7),
-            (Perk.Name.LOOK_ASIDE, None, 1/7)
+            (Perk.Name.DOUBLE_POINTS, None, 1/8),
+            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 1/8),
+            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 1/8),
+            (Perk.Name.ADDITIONAL_LIFE, None, 1/8),
+            (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 1/8),
+            (Perk.Name.DROP_MINE, None, 1/8),
+            (Perk.Name.LOOK_ASIDE, None, 1/8),
+            (Perk.Name.INVERSE_CONTROL_FOR_ENEMIES, Perk.Effect.INVERSE_CONTROL, 1/8)
         ]
 
     def random_perk(self):

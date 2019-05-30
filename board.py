@@ -72,8 +72,11 @@ class Board:
         cell = self.get_cell_by_indexes(row, column)
         return cell.flagging_player is None or not cell.has_mine
 
-    def get_cell_towards(self, row, column, move_direction):
-        new_coordinates = [sum(x) for x in zip((row, column), move_direction.value)]
+    def get_cell_towards(self, row, column, move_direction, inversed_direction):
+        direction_t = move_direction.value
+        if inversed_direction:
+            direction_t = tuple([-x for x in direction_t])
+        new_coordinates = [sum(x) for x in zip((row, column), direction_t)]
         if not new_coordinates[0] in range(self.rows):
             new_coordinates[0] = abs(abs(new_coordinates[0]) - self.rows)
         if not new_coordinates[1] in range(self.columns):
@@ -102,6 +105,7 @@ class Cell:
         self.row = row
         self.column = column
         self.has_mine = False
+        self.has_mine_from_start = True
         self.mines_around = 0
         self.is_uncovered = False
         self.flagging_player = None
