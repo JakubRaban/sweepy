@@ -1,3 +1,4 @@
+from random import shuffle, random, uniform
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -225,6 +226,9 @@ class WholeWindow(BoxLayout):
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         try:
+            before_position = [player.get_position() for player in self.game.players]
+
+            uncovered = []
             if keycode[1] == 'left':
                 self.game.move_player(0, MoveDirection.LEFT)
             elif keycode[1] == 'right':
@@ -234,11 +238,11 @@ class WholeWindow(BoxLayout):
             elif keycode[1] == 'up':
                 self.game.move_player(0, MoveDirection.UP)
             elif keycode[1] == ',':
-                self.game.uncover_cell(0)
+                uncovered = self.game.uncover_cell(0)
             elif keycode[1] == '.':
                 self.game.flag_cell(0)
             elif keycode[1] == '/':
-                self.game.drop_item(0)
+                uncovered = self.game.drop_item(0)
 
             if keycode[1] == 'a':
                 self.game.move_player(1, MoveDirection.LEFT)
@@ -249,7 +253,7 @@ class WholeWindow(BoxLayout):
             elif keycode[1] == 'w':
                 self.game.move_player(1, MoveDirection.UP)
             elif keycode[1] == 'f':
-                self.game.uncover_cell(1)
+                uncovered = self.game.uncover_cell(1)
             elif keycode[1] == 'g':
                 self.game.flag_cell(1)
             elif keycode[1] == 'v':
@@ -264,7 +268,7 @@ class WholeWindow(BoxLayout):
             elif keycode[1] == 'numpad8':
                 self.game.move_player(2, MoveDirection.UP)
             elif keycode[1] == 'numpaddivide':
-                self.game.uncover_cell(2)
+                uncovered = self.game.uncover_cell(2)
             elif keycode[1] == 'numpadmul':
                 self.game.flag_cell(2)
             elif keycode[1] == 'numpadsubstract':
@@ -279,17 +283,20 @@ class WholeWindow(BoxLayout):
             elif keycode[1] == 'i':
                 self.game.move_player(3, MoveDirection.UP)
             elif keycode[1] == '[':
-                self.game.uncover_cell(3)
+                uncovered = self.game.uncover_cell(3)
             elif keycode[1] == ']':
                 self.game.flag_cell(3)
             elif keycode[1] == '\\':
                 self.game.drop_item(3)
 
-            self.update_labels()
+            after_position = [player.get_position() for player in self.game.players]
 
-            for i in range(self.game_grid.rows):
-                for j in range(self.game_grid.cols):
-                    self.game_grid.update_cell(i, j, self.game)
+            cells_to_update = before_position + uncovered + after_position
+
+            for cell in cells_to_update:
+                self.game_grid.update_cell(cell[0], cell[1], self.game)
+
+            self.update_labels()
         except IndexError:
             pass
 
@@ -365,4 +372,3 @@ class SweepyApp(App):
 
 if __name__ == '__main__':
     SweepyApp().run()
-

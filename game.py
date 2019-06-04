@@ -14,9 +14,9 @@ class Game:
         for index in range(nb_of_players):
             player = None
             if index == 0:
-                player = Player(rows-1, 0, PlayerColor.BLUE)
+                player = Player(rows - 1, 0, PlayerColor.BLUE)
             elif index == 1:
-                player = Player(0, columns-1, PlayerColor.RED)
+                player = Player(0, columns - 1, PlayerColor.RED)
             elif index == 2:
                 player = Player(0, 0, PlayerColor.GREEN)
             elif index == 3:
@@ -34,7 +34,8 @@ class Game:
     def move_player(self, player_id, move_direction):
         moving_player = self.players[player_id]
         coords = self.board.get_cell_towards(moving_player.row, moving_player.column, move_direction,
-                                             inversed_direction=self.players[player_id].has_effect(Perk.Effect.INVERSE_CONTROL))
+                                             inversed_direction=self.players[player_id].has_effect(
+                                                 Perk.Effect.INVERSE_CONTROL))
         if self.can_move_to(coords[0], coords[1]) and self.able_to_move(player_id):
             self.players[player_id].set_new_position(coords)
             new_perk = self.board.cells[coords].perk
@@ -48,12 +49,14 @@ class Game:
     def uncover_cell(self, player_id):
         current_player = self.players[player_id]
         player_position = current_player.get_position()
-        uncover_outcome = self.board.uncover_cell(player_position[0], player_position[1], current_player)
+        uncover_outcome, cells_to_update = self.board.uncover_cell(player_position[0], player_position[1],
+                                                                   current_player)
         if uncover_outcome == ActionOutcome.EXPLODED:
             if self.players[player_id].has_perk(Perk.Name.ADDITIONAL_LIFE):
                 PerkManager.empty_perk.activate(player_id, self.players)
             else:
                 current_player.is_dead = True
+        return cells_to_update
 
     def flag_cell(self, player_id):
         current_player = self.players[player_id]
@@ -100,6 +103,12 @@ class Game:
             self.window.game_grid.update_cell(perked_cell[0], perked_cell[1], self)
         Clock.schedule_once(lambda dt: self.perk_event(), self.get_perking_time())
 
+    def perk_event(self):
+        perked_cell = self.put_perk_on_board()
+        if perked_cell is not None:
+            self.window.game_grid.update_cell(perked_cell[0], perked_cell[1], self)
+        Clock.schedule_once(lambda dt: self.perk_event(), self.get_perking_time())
+
     def put_perk_on_board(self):
         possible_cells = self.board.get_perkable_cells(self.players)
         if len(possible_cells) == 0:
@@ -116,6 +125,9 @@ class Game:
         Clock.schedule_once(lambda dt: self.window.update_labels(), perk_lasting_time)
         self.window.update_labels()
         
+    def get_perking_time(self):
+        return uniform(20, 40)
+
     def get_perking_time(self):
         return uniform(20, 40)
 
@@ -167,14 +179,14 @@ class PerkManager:
 
     def __init__(self):
         self.perks = [
-            (Perk.Name.DOUBLE_POINTS, None, 1/8),
-            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 1/8),
-            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 1/8),
-            (Perk.Name.ADDITIONAL_LIFE, None, 1/8),
-            (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 1/8),
-            (Perk.Name.DROP_MINE, None, 1/8),
-            (Perk.Name.LOOK_ASIDE, None, 1/8),
-            (Perk.Name.INVERSE_CONTROL_FOR_ENEMIES, Perk.Effect.INVERSE_CONTROL, 1/8),
+            (Perk.Name.DOUBLE_POINTS, None, 1 / 8),
+            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 1 / 8),
+            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 1 / 8),
+            (Perk.Name.ADDITIONAL_LIFE, None, 1 / 8),
+            (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 1 / 8),
+            (Perk.Name.DROP_MINE, None, 1 / 8),
+            (Perk.Name.LOOK_ASIDE, None, 1 / 8),
+            (Perk.Name.INVERSE_CONTROL_FOR_ENEMIES, Perk.Effect.INVERSE_CONTROL, 1 / 8),
             (Perk.Name.DYDUCH, None, 0)
         ]
 

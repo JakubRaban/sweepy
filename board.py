@@ -1,4 +1,3 @@
-
 from enum import Enum
 from random import shuffle
 
@@ -41,17 +40,17 @@ class Board:
                         return False
         return True
 
-    def uncover_cell(self, row, column, player):
+    def uncover_cell(self, row, column, player, cells_to_update=[]):
         current_cell = self.get_cell_by_indexes(row, column)
+        cells_to_update.append((row, column))
         uncover_status = current_cell.uncover(player)
         if uncover_status == ActionOutcome.UNCOVER_ZERO:
             adjacent_cells = self.get_adjacent_cells_coordinates(row, column)
             for cell in adjacent_cells:
-                self.uncover_cell(cell[0], cell[1], player)
-            return ActionOutcome.UNCOVER_CORRECT
+                self.uncover_cell(cell[0], cell[1], player, cells_to_update)
         if uncover_status == ActionOutcome.EXPLODED:
             self.remaining_mines -= 1
-        return uncover_status
+        return uncover_status, cells_to_update
 
     def toggle_flag(self, row, column, player):
         outcome = self.get_cell_by_indexes(row, column).toggle_flag(player)
