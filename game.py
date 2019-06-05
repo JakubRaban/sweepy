@@ -76,6 +76,7 @@ class Game:
     def drop_item(self, player_id):
         current_player = self.players[player_id]
         player_position = current_player.get_position()
+        cells_to_update = []
         if current_player.has_perk(Perk.Name.DROP_MINE):
             cell_at_position = self.board.get_cell_with_tuple(player_position)
             if not cell_at_position.has_mine:
@@ -88,8 +89,9 @@ class Game:
             affected_cells = cells_around + [player_position]
             for cell_position in affected_cells:
                 if not self.board.get_cell_with_tuple(cell_position).has_mine:
-                    self.board.uncover_cell(cell_position[0], cell_position[1], player_id)
+                    cells_to_update = self.board.uncover_cell(cell_position[0], cell_position[1], player_id)[1]
             PerkManager.empty_perk.activate(player_id, self.players)
+        return cells_to_update
 
     def all_players_dead(self):
         return len([player.is_dead for player in self.players if not player.is_dead]) == 0
@@ -120,7 +122,7 @@ class Game:
         self.window.update_labels()
         
     def get_perking_time(self):
-        return uniform(20, 40)
+        return uniform(0.01, 1.2)
 
 
 class Perk:
@@ -170,13 +172,13 @@ class PerkManager:
 
     def __init__(self):
         self.perks = [
-            (Perk.Name.DOUBLE_POINTS, None, 1 / 8),
-            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 1 / 8),
-            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 1 / 8),
-            (Perk.Name.ADDITIONAL_LIFE, None, 1 / 8),
-            (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 1 / 8),
-            (Perk.Name.DROP_MINE, None, 1 / 8),
-            (Perk.Name.LOOK_ASIDE, None, 1 / 8),
+            (Perk.Name.DOUBLE_POINTS, None, 1 / 80),
+            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 1 / 800),
+            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 1 / 800),
+            (Perk.Name.ADDITIONAL_LIFE, None, 1 / 800),
+            (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 1 / 800),
+            (Perk.Name.DROP_MINE, None, 1 / 2),
+            (Perk.Name.LOOK_ASIDE, None, 1 / 2),
             (Perk.Name.INVERSE_CONTROL_FOR_ENEMIES, Perk.Effect.INVERSE_CONTROL, 1 / 8),
             (Perk.Name.DYDUCH, None, 0)
         ]

@@ -257,7 +257,7 @@ class WholeWindow(BoxLayout):
             elif keycode[1] == 'g':
                 self.game.flag_cell(1)
             elif keycode[1] == 'v':
-                self.game.drop_item(1)
+                uncovered = self.game.drop_item(1)
 
             if keycode[1] == 'numpad4':
                 self.game.move_player(2, MoveDirection.LEFT)
@@ -272,7 +272,7 @@ class WholeWindow(BoxLayout):
             elif keycode[1] == 'numpadmul':
                 self.game.flag_cell(2)
             elif keycode[1] == 'numpadsubstract':
-                self.game.drop_item(2)
+                uncovered = self.game.drop_item(2)
 
             if keycode[1] == 'j':
                 self.game.move_player(3, MoveDirection.LEFT)
@@ -287,7 +287,7 @@ class WholeWindow(BoxLayout):
             elif keycode[1] == ']':
                 self.game.flag_cell(3)
             elif keycode[1] == '\\':
-                self.game.drop_item(3)
+                uncovered = self.game.drop_item(3)
 
             after_position = [player.get_position() for player in self.game.players]
 
