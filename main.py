@@ -1,12 +1,10 @@
-from random import shuffle, random, uniform
+import os
 
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.config import Config
 from kivy.core.window import Window
 from kivy.lang import Builder
-from kivy.properties import ObjectProperty, StringProperty
-from kivy.uix.actionbar import ActionToggleButton
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
@@ -18,7 +16,6 @@ from kivy.uix.widget import Widget
 
 from board import MoveDirection
 from game import Game, Perk
-import os
 
 kv = Builder.load_file("layout.kv")
 
