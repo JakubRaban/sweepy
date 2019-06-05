@@ -122,7 +122,7 @@ class Game:
         self.window.update_labels()
         
     def get_perking_time(self):
-        return uniform(0.01, 1.2)
+        return uniform(20, 40)
 
 
 class Perk:
@@ -172,13 +172,13 @@ class PerkManager:
 
     def __init__(self):
         self.perks = [
-            (Perk.Name.DOUBLE_POINTS, None, 1 / 80),
-            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 1 / 800),
-            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 1 / 800),
-            (Perk.Name.ADDITIONAL_LIFE, None, 1 / 800),
-            (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 1 / 800),
-            (Perk.Name.DROP_MINE, None, 1 / 2),
-            (Perk.Name.LOOK_ASIDE, None, 1 / 2),
+            (Perk.Name.DOUBLE_POINTS, None, 1 / 8),
+            (Perk.Name.ENEMIES_INVISIBLE, Perk.Effect.INVISIBLE, 1 / 8),
+            (Perk.Name.IMMOBILISE_ENEMIES, Perk.Effect.IMMOBILISED, 1 / 8),
+            (Perk.Name.ADDITIONAL_LIFE, None, 1 / 8),
+            (Perk.Name.KILL_ENEMIES_ON_BAD_FLAG, Perk.Effect.KILL_ON_BAD_FLAG, 1 / 8),
+            (Perk.Name.DROP_MINE, None, 1 / 8),
+            (Perk.Name.LOOK_ASIDE, None, 1 / 8),
             (Perk.Name.INVERSE_CONTROL_FOR_ENEMIES, Perk.Effect.INVERSE_CONTROL, 1 / 8),
             (Perk.Name.DYDUCH, None, 0)
         ]
