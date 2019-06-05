@@ -32,8 +32,6 @@ def get_screen_size():
 class MenuScreen(Screen):
     def play_btn(self, if_single):
         sm.switch_to(ParametersScreen(if_single))
-        #sm.add_widget(ParametersScreen(if_single))
-        #sm.current = "parameters"
 
 
 class ParametersScreen(Screen):
@@ -55,10 +53,6 @@ class ParametersScreen(Screen):
                 sm.switch_to(GameScreen(name="game", board_height=int(self.board_height.text),
                                         board_width=int(self.board_width.text),
                                         players=self.nb_of_players))
-                #sm.add_widget(GameScreen(name="game", board_height=int(self.board_height.text),
-                #                        board_width=int(self.board_width.text),
-                #                        players=self.nb_of_players))
-                #sm.current = "game"
             else:
                 self.invalid_form()
         except ValueError:
@@ -68,14 +62,12 @@ class ParametersScreen(Screen):
         pop = Popup(title='Invalid board size values!',
                     content=Label(text='Please type board dimensions with values between 5 and 30.'),
                     size_hint=(None, None), size=(600, 100))
-
         pop.open()
 
     def not_a_number_form(self):
         pop = Popup(title='Invalid board size values!',
                     content=Label(text='Please give integers!'),
                     size_hint=(None, None), size=(600, 100))
-
         pop.open()
 
     def add_players(self, id):
@@ -101,8 +93,6 @@ class GameScreen(Screen):
     def finish(self, result):
         Window.size = (800, 800)
         sm.switch_to(SummaryScreen(result))
-        #sm.add_widget(SummaryScreen(result))
-        #sm.current = "summary"
 
 
 class SummaryScreen(Screen):
@@ -207,7 +197,7 @@ class WholeWindow(BoxLayout):
             filename = 'images/tile'
             if self.game.players[index].is_dead:
                 filename += "_mine"
-            elif self.game.players[index].perk is not None:
+            elif self.game.players[index].perk:
                 filename += ("_perk_" + self.game.players[index].perk.name.value)
             filename += ".png"
             self.perk_indicators[index].source = filename
@@ -218,7 +208,8 @@ class WholeWindow(BoxLayout):
             Clock.schedule_once(lambda dt: self.parent.finish(final_result), 2)
 
     def get_remaining_mines_text(self):
-        return "Mines remaining: " + str(self.game.board.remaining_mines) + "/" + str(self.game.board.total_number_of_mines)
+        return "Mines remaining: " + str(self.game.board.remaining_mines) \
+               + "/" + str(self.game.board.total_number_of_mines)
 
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_keyboard_down)
@@ -325,7 +316,7 @@ class GameBoard(GridLayout):
     def update_cell(self, row, column, game):
         filename = "images/tile"
         our_cell = game.board.get_cell_by_indexes(row, column)
-        if our_cell.perk is not None:
+        if our_cell.perk:
             filename += ("_perk_" + our_cell.perk.name.value)
         if our_cell.is_uncovered:
             if our_cell.has_mine:
@@ -333,7 +324,7 @@ class GameBoard(GridLayout):
             else:
                 filename += ("_" + str(our_cell.mines_around))
         if "mine" not in filename:
-            if our_cell.flagging_player is not None and not our_cell.is_uncovered:
+            if our_cell.flagging_player and not our_cell.is_uncovered:
                 filename += "_flag"
                 if our_cell.has_mine:
                     filename += "_ok"

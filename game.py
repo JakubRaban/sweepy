@@ -94,14 +94,14 @@ class Game:
         return cells_to_update
 
     def all_players_dead(self):
-        return len([player.is_dead for player in self.players if not player.is_dead]) == 0
+        return not [player.is_dead for player in self.players if not player.is_dead]
 
     def is_finished(self):
         return self.board.remaining_mines == 0 or self.all_players_dead()
     
     def perk_event(self):
         perked_cell = self.put_perk_on_board()
-        if perked_cell is not None:
+        if perked_cell:
             self.window.game_grid.update_cell(perked_cell[0], perked_cell[1], self)
         Clock.schedule_once(lambda dt: self.perk_event(), self.get_perking_time())
 
@@ -133,17 +133,17 @@ class Perk:
 
     def activate(self, player_id, players):
         current_perk = players[player_id].perk
-        if current_perk is not None:
+        if current_perk:
             current_perk.cancel(player_id, players)
-            if current_perk.clock_event is not None:
+            if current_perk.clock_event:
                 current_perk.clock_event.cancel()
-        players[player_id].perk = self if self.name is not None else None
+        players[player_id].perk = self if self.name else None
         for i, p in enumerate(players):
             if i != player_id:
                 p.effects.append(self.effect_on_others)
 
     def cancel(self, player_id, players):
-        if self.effect_on_others is not None:
+        if self.effect_on_others:
             for i, p in enumerate(players):
                 if i != player_id:
                     p.effects.remove(self.effect_on_others)
