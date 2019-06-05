@@ -88,7 +88,7 @@ class GameScreen(Screen):
         self.game_result = None
 
     def finish(self, result):
-        Window.size = (800, 800)
+        Window.size = (800, 600)
         sm.switch_to(SummaryScreen(result))
 
 
@@ -279,7 +279,7 @@ class WholeWindow(BoxLayout):
 
             after_position = [player.get_position() for player in self.game.players]
 
-            cells_to_update = before_position + uncovered + after_position
+            cells_to_update = before_position + list(uncovered) + after_position
 
             for cell in cells_to_update:
                 self.game_grid.update_cell(cell[0], cell[1], self.game)

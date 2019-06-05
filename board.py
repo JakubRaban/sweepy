@@ -40,9 +40,9 @@ class Board:
                         return False
         return True
 
-    def uncover_cell(self, row, column, player, cells_to_update=[]):
+    def uncover_cell(self, row, column, player, cells_to_update=set()):
         current_cell = self.get_cell_by_indexes(row, column)
-        cells_to_update.append((row, column))
+        cells_to_update.add((row, column))
         uncover_status = current_cell.uncover(player)
         if uncover_status == ActionOutcome.UNCOVER_ZERO:
             adjacent_cells = self.get_adjacent_cells_coordinates(row, column)

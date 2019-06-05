@@ -116,9 +116,9 @@ class Game:
 
     def collect_perk(self, perk, player_id):
         perk.activate(player_id, self.players)
-        perk_lasting_time = uniform(10, 20)
-        perk.clock_event = Clock.schedule_once(lambda dt: perk.cancel(player_id, self.players), perk_lasting_time)
-        Clock.schedule_once(lambda dt: self.window.update_labels(), perk_lasting_time)
+        perk_duration = uniform(10, 20)
+        perk.clock_event = Clock.schedule_once(lambda dt: perk.cancel(player_id, self.players), perk_duration)
+        Clock.schedule_once(lambda dt: self.window.update_labels(), perk_duration)
         self.window.update_labels()
         
     def get_perking_time(self):

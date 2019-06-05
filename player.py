@@ -21,7 +21,7 @@ class Player:
         self.score += delta
 
     def has_perk(self, perk_name):
-        return self.perk is not None and self.perk.name == perk_name
+        return self.perk and self.perk.name == perk_name
 
     def has_effect(self, effect):
         return effect in self.effects
