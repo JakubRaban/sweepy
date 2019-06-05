@@ -1,0 +1,3 @@
+Cython==0.24
+pygame==1.9.5
+Kivy==1.10.0
